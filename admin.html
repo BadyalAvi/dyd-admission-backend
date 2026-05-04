@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master Admin Portal — DYD | Jammu University</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+/* MIT-Level Academic UI Overhaul - UNIFIED ADMIN PORTAL */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #0F172A; --ink-soft: #334155; --ink-muted: #64748B; --ink-faint: #94A3B8;
+  --paper: #F1F5F9; --surface: #FFFFFF; --border: #E2E8F0; --border-focus: #CBD5E1;
+  --primary: #A31F34; --primary-hover: #821829; --primary-pale: #FDF2F4;
+  --sky: #2563EB; --sky-pale: #EFF6FF;
+  --green: #059669; --green-pale: #ECFDF5;
+  --warning: #D97706; --warning-pale: #FFFBEB;
+  --gold: #B07D12; --goldp: #FBF6E8;
+  
+  --sw: 280px; --r: 6px; --r-lg: 12px;
+  --t: all 0.2s ease;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 10px 25px -5px rgba(15, 23, 42, 0.05);
+}
+
+body { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased; }
+
+/* ── LOGIN OVERLAY ── */
+.login-over { position: fixed; inset: 0; background: #020617; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+.login-over.hide { display: none; }
+.login-box { background: var(--surface); border-radius: var(--r-lg); padding: 48px; width: 420px; box-shadow: var(--shadow-card); }
+.lb-logo { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
+.lb-mark { width: 48px; height: 48px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Merriweather', serif; font-size: 24px; font-weight: 900; color: #fff; box-shadow: 0 4px 10px rgba(163, 31, 52, 0.3); }
+.lb-name { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 700; color: var(--ink); line-height: 1.2; letter-spacing: -0.5px; }
+.lb-name small { display: block; font-size: 11px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; color: var(--ink-muted); margin-top: 4px; }
+.login-box h2 { font-family: 'Merriweather', serif; font-size: 26px; font-weight: 900; color: var(--ink); margin-bottom: 8px; letter-spacing: -0.5px; }
+.login-box p { font-size: 14px; color: var(--ink-muted); margin-bottom: 28px; line-height: 1.5; }
+.lf { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.lf label { font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--ink-soft); }
+.lf input { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink); padding: 12px 16px; outline: none; transition: var(--t); width: 100%; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); }
+.lf input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(163, 31, 52, 0.1); }
+.lbtn { width: 100%; background: var(--ink); color: #fff; border: none; border-radius: var(--r); padding: 14px; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: var(--t); margin-top: 8px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
+.lbtn:hover { background: #000; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15, 23, 42, 0.3); }
+.lerr { background: var(--primary-pale); border: 1px solid rgba(163,31,52,0.2); border-left: 4px solid var(--primary); border-radius: var(--r); padding: 12px 16px; font-size: 13px; font-weight: 500; color: var(--primary); margin-bottom: 20px; display: none; }
+.lerr.show { display: block; animation: fadeUp 0.3s ease; }
+
+/* ── LAYOUT & SIDEBAR ── */
+.sidebar { width: var(--sw); min-height: 100vh; background: #020617; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; border-right: 1px solid rgba(255,255,255,0.05); }
+.stop { padding: 32px 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.snav { flex: 1; padding: 24px 0; overflow-y: auto; }
+.nlbl { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; color: rgba(255,255,255,0.3); padding: 0 24px 16px; margin-top: 16px; }
+.nlbl:first-child { margin-top: 0; }
+.ni { display: flex; align-items: center; gap: 14px; padding: 12px 24px; cursor: pointer; transition: var(--t); position: relative; user-select: none; }
+.ni:hover { background: rgba(255,255,255,0.03); }
+.ni.active { background: linear-gradient(90deg, rgba(163,31,52,0.1) 0%, transparent 100%); }
+.ni.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--primary); }
+.nicon { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; background: rgba(255,255,255,0.05); }
+.ntxt { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500; transition: var(--t); flex: 1; }
+.ni.active .ntxt { color: #fff; font-weight: 600; }
+.ni.active .nicon { background: var(--primary); color: #fff; }
+.ncount { background: rgba(255,255,255,0.1); border-radius: 10px; padding: 2px 8px; font-size: 10px; font-weight: 600; color: #fff; }
+
+.main { margin-left: var(--sw); flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 48px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+.crumb { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--ink-muted); font-weight: 500; }
+.crumb strong { color: var(--ink); font-weight: 600; }
+.tbr { display: flex; gap: 16px; align-items: center; }
+.logout-btn { background: transparent; border: 1px solid var(--border-focus); border-radius: var(--r); padding: 8px 16px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--ink-soft); cursor: pointer; transition: var(--t); }
+.logout-btn:hover { border-color: var(--ink); color: var(--ink); background: var(--paper); }
+
+.cont { flex: 1; padding: 48px; max-width: 1400px; margin: 0 auto; width: 100%; }
+.view-panel { display: none; animation: fadeUp 0.3s ease; }
+.view-panel.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.sh { margin-bottom: 32px; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.ey { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--primary); font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.ey::before { content: ''; width: 24px; height: 2px; background: var(--primary); border-radius: 2px; }
+.st { font-family: 'Merriweather', serif; font-size: clamp(28px, 4vw, 36px); font-weight: 900; color: var(--ink); line-height: 1.2; letter-spacing: -0.5px; }
+.st em { color: var(--primary); font-style: italic; font-weight: 700; }
+
+/* ── COMMON UI ── */
+.form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 32px; box-shadow: var(--shadow-card); margin-bottom: 24px; }
+.gl { font-family: 'Merriweather', serif; font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+.gl::before { content: ''; width: 4px; height: 16px; background: var(--primary); border-radius: 4px; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px; }
+.stat { background: #fff; border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px; box-shadow: var(--shadow-sm); transition: var(--t); }
+.stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--border-focus); }
+.stat-lbl { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
+.stat-val { font-family: 'Merriweather', serif; font-size: 32px; font-weight: 900; color: var(--ink); line-height: 1; }
+.stat-sub { font-size: 12px; color: var(--ink-faint); margin-top: 8px; font-weight: 500; }
+
+.badge { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; }
+.b-pend { background: var(--warning-pale); color: var(--warning); border: 1px solid rgba(217, 119, 6, 0.2); }
+.b-appr { background: var(--green-pale); color: var(--green); border: 1px solid rgba(5, 150, 105, 0.2); }
+.b-reje { background: var(--primary-pale); color: var(--primary); border: 1px solid rgba(163, 31, 52, 0.2); }
+.b-hold { background: var(--sky-pale); color: var(--sky); border: 1px solid rgba(37, 99, 235, 0.2); }
+.b-draf { background: var(--paper); color: var(--ink-muted); border: 1px solid var(--border); }
+.b-sub  { background: #F5F3FF; color: #7C3AED; border: 1px solid rgba(124, 58, 237, 0.2); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: var(--r); font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: var(--t); }
+.bpri { background: var(--ink); color: #fff; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2); }
+.bpri:hover:not(:disabled) { background: #000; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3); }
+.bpri:disabled { background: var(--border-focus); cursor: not-allowed; box-shadow: none; }
+.bgh { background: var(--surface); border: 1px solid var(--border); color: var(--ink-soft); }
+.bgh:hover { border-color: var(--ink); color: var(--ink); background: var(--paper); }
+.bred { background: var(--surface); border: 1px solid rgba(163, 31, 52, 0.3); color: var(--primary); }
+.bred:hover { background: var(--primary-pale); border-color: var(--primary); }
+
+/* ── TRACKER TABLE ── */
+.filters { display: flex; gap: 16px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; background: #fff; padding: 16px; border-radius: var(--r-lg); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+.search-wrap { position: relative; flex: 1; min-width: 250px; }
+.search-wrap input { width: 100%; background: var(--paper); border: 1px solid var(--border); border-radius: var(--r); font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink); padding: 10px 16px 10px 40px; outline: none; transition: var(--t); }
+.search-wrap input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: #fff; }
+.search-wrap::before { content: '🔍'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.5; pointer-events: none; }
+
+.sw2 { position: relative; display: block; }
+.sw2::after { content: ''; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); width: 10px; height: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; pointer-events: none; }
+.filter-sel { background: var(--paper); border: 1px solid var(--border); border-radius: var(--r); font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink); padding: 10px 36px 10px 16px; outline: none; appearance: none; cursor: pointer; transition: var(--t); }
+.filter-sel:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: #fff; }
+
+.table-wrap { background: #fff; border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+.table-head { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--paper); }
+.table-head-left { font-size: 13px; color: var(--ink-muted); font-weight: 500; }
+.table-head-left strong { color: var(--ink); font-weight: 700; }
+
+table { width: 100%; border-collapse: collapse; }
+thead th { padding: 14px 24px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--ink-muted); background: #fff; border-bottom: 1px solid var(--border); }
+tbody tr { border-bottom: 1px solid var(--paper); transition: var(--t); cursor: pointer; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--paper); }
+tbody td { padding: 16px 24px; font-size: 14px; color: var(--ink-soft); vertical-align: middle; }
+tbody td:first-child { font-family: 'Inter', sans-serif; font-weight: 600; color: var(--ink); font-size: 14px; }
+
+.pag { display: flex; align-items: center; gap: 8px; padding: 16px 24px; border-top: 1px solid var(--border); background: #fff; }
+.pag-btn { width: 36px; height: 36px; border-radius: var(--r); border: 1px solid var(--border); background: #fff; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: var(--t); display: flex; align-items: center; justify-content: center; color: var(--ink-soft); }
+.pag-btn:hover { border-color: var(--ink); color: var(--ink); background: var(--paper); }
+.pag-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+.pag-info { font-size: 13px; font-weight: 500; color: var(--ink-muted); margin-left: auto; }
+
+/* ── COMMS COMPOSE ── */
+.compose-grid { display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
+.f { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.f label { font-size: 11px; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.f input, .f select, .f textarea { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: var(--ink); padding: 12px 16px; outline: none; transition: var(--t); width: 100%; box-sizing: border-box; appearance: none; }
+.f input:focus, .f select:focus, .f textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(163, 31, 52, 0.1); }
+.f textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+
+.type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.type-opt { border: 1px solid var(--border); border-radius: var(--r); padding: 12px 8px; text-align: center; cursor: pointer; transition: var(--t); background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.type-opt:hover { border-color: var(--border-focus); background: var(--paper); }
+.type-opt.sel { border-color: var(--primary); background: var(--primary-pale); box-shadow: 0 0 0 2px rgba(163, 31, 52, 0.1); }
+.type-opt input[type=radio] { display: none; }
+.type-icon { font-size: 20px; margin-bottom: 6px; }
+.type-lbl { font-size: 11px; font-weight: 600; color: var(--ink-soft); }
+.type-opt.sel .type-lbl { color: var(--primary); }
+
+.priority-row { display: flex; gap: 12px; }
+.pri-opt { flex: 1; border: 1px solid var(--border); border-radius: var(--r); padding: 10px; text-align: center; cursor: pointer; transition: var(--t); background: #fff; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+.pri-opt:hover { background: var(--paper); }
+.pri-opt.normal.sel { border-color: var(--sky); background: var(--sky-pale); color: var(--sky); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1); }
+.pri-opt.high.sel { border-color: var(--gold); background: var(--goldp); color: var(--gold); box-shadow: 0 0 0 2px rgba(176, 125, 18, 0.1); }
+.pri-opt.urgent.sel { border-color: var(--primary); background: var(--primary-pale); color: var(--primary); box-shadow: 0 0 0 2px rgba(163, 31, 52, 0.1); }
+.pri-opt input[type=radio] { display: none; }
+
+.audience-box { background: var(--paper); border: 1px solid var(--border); border-radius: var(--r); padding: 20px; margin-top: 20px; display: flex; justify-content: space-around; text-align: center; }
+.aud-count-num { font-family: 'Merriweather', serif; font-size: 28px; font-weight: 900; color: var(--ink); }
+.aud-count-lbl { font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 600; }
+
+.attach-zone { border: 2px dashed var(--border-focus); border-radius: var(--r-lg); padding: 24px 16px; text-align: center; cursor: pointer; transition: var(--t); position: relative; background: var(--paper); }
+.attach-zone:hover { border-color: var(--primary); background: var(--primary-pale); }
+.attach-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.attach-zone p { font-size: 14px; color: var(--ink-soft); }
+.attach-zone strong { color: var(--ink); font-weight: 600; }
+.attach-zone small { font-size: 12px; color: var(--ink-muted); display: block; margin-top: 6px; }
+.attach-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.attach-item { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--border); border-radius: var(--r); padding: 10px 14px; }
+.attach-item-name { font-size: 13px; font-weight: 500; color: var(--ink); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attach-item-del { background: none; border: none; cursor: pointer; color: var(--ink-muted); font-size: 16px; transition: var(--t); }
+.attach-item-del:hover { color: var(--primary); }
+
+.preview-card { background: #fff; border: 1px solid var(--border); border-radius: 24px; overflow: hidden; position: sticky; top: 88px; box-shadow: var(--shadow-card); }
+.pc-head { background: var(--ink); padding: 16px 20px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+.pc-body { padding: 24px; background: var(--paper); min-height: 400px; }
+.pc-notif { background: #fff; border-radius: 16px; padding: 16px; box-shadow: var(--shadow-md); margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.05); }
+.pc-notif-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.pc-notif-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.pc-notif-title { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.3; flex: 1; }
+.pc-notif-body { font-size: 13px; color: var(--ink-soft); line-height: 1.5; margin-bottom: 12px; }
+.pc-notif-footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--ink-muted); font-weight: 500; }
+.pc-badge { padding: 4px 8px; border-radius: 12px; font-weight: 600; }
+.pc-attach { background: var(--paper); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; font-weight: 500; color: var(--ink-soft); }
+
+/* ── SENT LIST ── */
+.nl-card { background: #fff; border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; transition: var(--t); margin-bottom: 16px; }
+.nl-card:hover { border-color: var(--border-focus); box-shadow: var(--shadow-sm); }
+.nl-card-head { padding: 20px; display: flex; align-items: flex-start; gap: 16px; cursor: pointer; }
+.nl-type-badge { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.nl-info { flex: 1; min-width: 0; }
+.nl-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
+.nl-meta { font-size: 13px; color: var(--ink-muted); }
+.nl-tags { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.tag { display: inline-flex; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.tag-all { background: var(--paper); color: var(--ink-soft); border: 1px solid var(--border); }
+.nl-actions { display: flex; align-items: center; gap: 8px; }
+.nl-detail { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
+.nl-detail.open { max-height: 1000px; padding: 0 20px 20px; }
+.nl-detail-inner { border-top: 1px solid var(--border); padding-top: 20px; }
+.nl-body-txt { font-size: 14px; color: var(--ink-soft); line-height: 1.6; background: var(--paper); border-radius: var(--r); padding: 16px; margin-bottom: 16px; white-space: pre-wrap; }
+.dl-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px; display: flex; align-items: center; gap: 12px; text-decoration: none; transition: var(--t); width: fit-content; min-width: 200px; }
+.dl-card:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); }
+.dl-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+
+/* ── MODALS & TOASTS ── */
+.modal-bg { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: stretch; justify-content: flex-end; }
+.modal-bg.show { display: flex; animation: fadeIn 0.2s ease; }
+.modal { background: #fff; width: 600px; max-width: 100vw; min-height: 100vh; overflow-y: auto; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.modal-bg.show .modal { transform: translateX(0); }
+.mhead { background: var(--ink); padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; }
+.mhead h3 { font-family: 'Merriweather', serif; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+.mclose { background: transparent; border: none; color: rgba(255,255,255,0.5); font-size: 24px; cursor: pointer; line-height: 1; padding: 4px; transition: var(--t); border-radius: 4px; }
+.mclose:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.mbody { padding: 32px; flex: 1; background: var(--paper); }
+.mfoot { padding: 24px 32px; border-top: 1px solid var(--border); display: flex; gap: 12px; flex-wrap: wrap; background: #fff; }
+
+.toast { position: fixed; bottom: 32px; right: 32px; background: var(--ink); color: #fff; border-radius: var(--r); padding: 16px 20px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 9999; transform: translateY(150%); opacity: 0; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s; max-width: 320px; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.tdot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.tdot.s { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.tdot.w { background: var(--warning); }
+.tdot.e { background: var(--primary); }
+.spin { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: sp 0.6s linear infinite; display: inline-block; }
+@keyframes sp { to { transform: rotate(360deg); } }
+
+/* App Modal Specifics */
+.mrow { display: flex; gap: 16px; margin-bottom: 24px; }
+.mkpi { flex: 1; background: #fff; border: 1px solid var(--border); border-radius: var(--r); padding: 16px; box-shadow: var(--shadow-sm); }
+.mkpi-lbl { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 8px; }
+.mkpi-val { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; color: var(--ink); }
+.msec { margin-bottom: 32px; background: #fff; border: 1px solid var(--border); border-radius: var(--r-lg); padding: 24px; box-shadow: var(--shadow-sm); }
+.msec-title { font-family: 'Merriweather', serif; font-size: 16px; color: var(--ink); font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+.msec-title::before { content: ''; width: 4px; height: 16px; background: var(--primary); border-radius: 4px; }
+.mdata { font-size: 14px; color: var(--ink-soft); line-height: 2; display: grid; gap: 8px; }
+.mdata strong { color: var(--ink); font-weight: 600; display: inline-block; width: 120px; }
+.sp2 { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+.sp2-pill { padding: 10px 16px; border-radius: var(--r); border: 1px solid var(--border); font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--t); background: #fff; color: var(--ink-muted); }
+.sp2-pill:hover { background: var(--paper); color: var(--ink); border-color: var(--border-focus); }
+.sp2-pill.pend { border-color: var(--warning); background: var(--warning-pale); color: var(--warning); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.1); }
+.sp2-pill.appr { border-color: var(--green); background: var(--green-pale); color: var(--green); box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.1); }
+.sp2-pill.reje { border-color: var(--primary); background: var(--primary-pale); color: var(--primary); box-shadow: 0 0 0 2px rgba(163, 31, 52, 0.1); }
+.sp2-pill.hold { border-color: var(--sky); background: var(--sky-pale); color: var(--sky); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1); }
+.mfield { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; margin-top: 16px; }
+.mfield label { font-size: 12px; font-weight: 600; color: var(--ink-soft); }
+.mfield input, .mfield textarea { background: var(--paper); border: 1px solid var(--border); border-radius: var(--r); font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink); padding: 12px 16px; outline: none; transition: var(--t); width: 100%; }
+.mfield input:focus, .mfield textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(163,31,52,0.1); background: #fff; }
+</style>
+</head>
+<body>
+
+<div class="login-over" id="loginOver">
+  <div class="login-box">
+    <div class="lb-logo">
+      <div class="lb-mark">D</div>
+      <div class="lb-name">DYD<small>Admin Portal · JU</small></div>
+    </div>
+    <h2>Admin Login</h2>
+    <p>Sign in to manage applications and communications</p>
+    <div class="lerr" id="lerr"></div>
+    <div class="lf"><label>Username</label><input type="text" id="lu" value="admin" placeholder="admin"></div>
+    <div class="lf"><label>Password</label><input type="password" id="lp" placeholder="admin123" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="lbtn" onclick="doLogin()" id="lbtn">Sign In Securely</button>
+    <p style="font-size:12px;color:var(--ink-muted);text-align:center;margin-top:24px;margin-bottom:0;">Default: admin / admin123</p>
+  </div>
+</div>
+
+<aside class="sidebar">
+  <div class="stop">
+    <div class="lb-logo" style="margin-bottom:0;">
+      <div class="lb-mark">D</div>
+      <div class="lb-name" style="color:#fff;">DYD<small style="color:rgba(255,255,255,0.5)">Admin Portal</small></div>
+    </div>
+  </div>
+  <nav class="snav">
+    <div class="nlbl">Admissions</div>
+    <div class="ni active" onclick="showAdminView('tracker', this)">
+      <div class="nicon">📋</div><div class="ntxt">Applications Tracker</div>
+    </div>
+    
+    <div class="nlbl">Communications</div>
+    <div class="ni" onclick="showAdminView('compose', this)">
+      <div class="nicon">✉️</div><div class="ntxt">Compose Message</div>
+    </div>
+    <div class="ni" onclick="showAdminView('sent', this)">
+      <div class="nicon">📤</div><div class="ntxt">Sent Broadcasts</div>
+      <div class="ncount" id="sentCount">0</div>
+    </div>
+    <div class="ni" onclick="showAdminView('commstats', this)">
+      <div class="nicon">📊</div><div class="ntxt">Comm Analytics</div>
+    </div>
+
+    <div class="nlbl">Quick Actions</div>
+    <div class="ni" onclick="quickCompose('gd-result','📋','Group Discussion Result')"><div class="nicon">📝</div><div class="ntxt">Send GD Result</div></div>
+    <div class="ni" onclick="quickCompose('interview-result','🎤','Interview Result')"><div class="nicon">🎤</div><div class="ntxt">Send PI Result</div></div>
+    <div class="ni" onclick="quickCompose('hall-ticket','🎟','Hall Ticket')"><div class="nicon">🎟</div><div class="ntxt">Send Hall Ticket</div></div>
+  </nav>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="crumb"><span>Admissions 2025–26</span><span style="color:var(--border)">|</span><strong id="topbarTitle">Applications Tracker</strong></div>
+    <div class="tbr">
+      <span id="adminUser" style="font-size:13px; font-weight:500; color:var(--ink-muted)"></span>
+      <button class="logout-btn" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="cont">
+    
+    <div class="view-panel active" id="viewTracker">
+      <div class="sh">
+        <div><div class="ey">Admissions Database</div><h1 class="st">Applications <em>Tracker</em></h1><p class="sd">Review, approve, and manage all incoming student applications.</p></div>
+      </div>
+      
+      <div class="stats">
+        <div class="stat"><div class="stat-lbl">Total Applications</div><div class="stat-val" id="stTotalA">—</div></div>
+        <div class="stat"><div class="stat-lbl">Pending Review</div><div class="stat-val" style="color:var(--warning)" id="stPendA">—</div></div>
+        <div class="stat"><div class="stat-lbl">Approved</div><div class="stat-val" style="color:var(--green)" id="stApprA">—</div></div>
+        <div class="stat"><div class="stat-lbl">Rejected</div><div class="stat-val" style="color:var(--primary)" id="stRejeA">—</div></div>
+      </div>
+
+      <div class="filters">
+        <div class="search-wrap"><input type="text" id="search" placeholder="Search by applicant name, email, or App ID…" oninput="debSearch(this.value)"></div>
+        <div class="sw2"><select id="statusFilter" class="filter-sel" onchange="loadApps()">
+          <option value="All">All Statuses</option>
+          <option value="Draft">Draft</option>
+          <option value="Pending">Pending</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+          <option value="On Hold">On Hold</option>
+        </select></div>
+        <button class="btn bpri" onclick="loadApps()">Refresh Data</button>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-head">
+          <div class="table-head-left">Showing <strong id="tableCount">0</strong> applications</div>
+        </div>
+        <table>
+          <thead><tr><th>App ID</th><th>Applicant Name</th><th>Email</th><th>Category</th><th>Stream</th><th>Status</th><th>Last Updated</th></tr></thead>
+          <tbody id="tbody"><tr><td colspan="7" style="text-align:center; padding: 40px; color: var(--ink-muted);">Loading database…</td></tr></tbody>
+        </table>
+        <div class="pag" id="pagRow"></div>
+      </div>
+    </div>
+
+    <div class="view-panel" id="viewCompose">
+      <div class="sh">
+        <div><div class="ey">Student Broadcasts</div><h1 class="st">Compose <em>Message</em></h1><p class="sd">Create and broadcast official notifications to student portals.</p></div>
+        <button class="btn bgh" onclick="clearForm()">Clear Form</button>
+      </div>
+
+      <div class="compose-grid">
+        <div>
+          <div class="form-card">
+            <div class="gl">Message Type</div>
+            <div class="type-grid">
+              <label class="type-opt sel"><input type="radio" name="mtype" value="general" checked onchange="setType(this)"><div class="type-icon">📢</div><div class="type-lbl">General</div></label>
+              <label class="type-opt"><input type="radio" name="mtype" value="gd-result" onchange="setType(this)"><div class="type-icon">📋</div><div class="type-lbl">GD Result</div></label>
+              <label class="type-opt"><input type="radio" name="mtype" value="interview-result" onchange="setType(this)"><div class="type-icon">🎤</div><div class="type-lbl">Interview</div></label>
+              <label class="type-opt"><input type="radio" name="mtype" value="roll-number" onchange="setType(this)"><div class="type-icon">🔢</div><div class="type-lbl">Roll No.</div></label>
+              <label class="type-opt"><input type="radio" name="mtype" value="id-card" onchange="setType(this)"><div class="type-icon">🪪</div><div class="type-lbl">ID Card</div></label>
+              <label class="type-opt"><input type="radio" name="mtype" value="hall-ticket" onchange="setType(this)"><div class="type-icon">🎟</div><div class="type-lbl">Hall Ticket</div></label>
+            </div>
+
+            <div class="f">
+              <label>Notification Title *</label>
+              <input type="text" id="notifTitle" placeholder="e.g. Group Discussion Results Announced" oninput="updatePreview()">
+            </div>
+            <div class="f">
+              <label>Message Body *</label>
+              <textarea id="notifBody" placeholder="Write the complete message here..." oninput="updatePreview()"></textarea>
+            </div>
+            
+            <div class="f">
+              <label>Priority Level</label>
+              <div class="priority-row">
+                <label class="pri-opt normal sel"><input type="radio" name="priority" value="normal" checked onchange="setPri(this)">🔵 Normal</label>
+                <label class="pri-opt high"><input type="radio" name="priority" value="high" onchange="setPri(this)">🟡 High</label>
+                <label class="pri-opt urgent"><input type="radio" name="priority" value="urgent" onchange="setPri(this)">🔴 Urgent</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <div class="gl">Target Audience</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="f">
+                <label>Application Status</label>
+                <div class="sw2"><select id="targetStatus" onchange="updateAudienceCount()">
+                  <option value="All">All Applicants</option>
+                  <option value="Draft">Draft only</option>
+                  <option value="Pending">Pending Review</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Rejected">Rejected</option>
+                  <option value="On Hold">On Hold</option>
+                </select></div>
+              </div>
+              <div class="f">
+                <label>Category</label>
+                <div class="sw2"><select id="targetCat" onchange="updateAudienceCount()">
+                  <option value="All">All Categories</option>
+                  <option value="General">General</option>
+                  <option value="SC">SC</option>
+                  <option value="ST">ST</option>
+                  <option value="OBC">OBC</option>
+                  <option value="EWS">EWS</option>
+                </select></div>
+              </div>
+            </div>
+            <div class="audience-box">
+              <div><div class="aud-count-num" id="audTotal">—</div><div class="aud-count-lbl">Total Applicants</div></div>
+              <div><div class="aud-count-num" id="audEmails">—</div><div class="aud-count-lbl">With Email</div></div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <div class="gl">Attachments</div>
+            <div class="attach-zone" id="attachZone">
+              <input type="file" id="attachInput" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png,.zip,.txt" onchange="handleAttachments(this)">
+              <p>📎 <strong>Click to attach files</strong> or drag & drop</p>
+              <small>PDF, Word, Excel, Images, ZIP — Max 10MB each</small>
+            </div>
+            <div class="attach-list" id="attachList"></div>
+          </div>
+
+          <button class="btn bpri" style="width:100%; padding: 16px; font-size:16px;" onclick="sendNotification()" id="sendBtn">
+            📤 Broadcast Message
+          </button>
+        </div>
+
+        <div>
+          <div class="preview-card">
+            <div class="pc-head">Student Portal Live Preview</div>
+            <div class="pc-body">
+              <div class="pc-notif" id="previewCard">
+                <div class="pc-notif-head">
+                  <div class="pc-notif-icon" id="pvIcon" style="background:var(--sky-pale); color:var(--sky);">📢</div>
+                  <div class="pc-notif-title" id="pvTitle">Your notification title</div>
+                </div>
+                <div class="pc-notif-body" id="pvBody">Your message will appear here. Write clearly and include all important details for students.</div>
+                <div class="pc-notif-footer">
+                  <span id="pvTime">Just now</span>
+                  <span class="pc-badge" id="pvBadge" style="background:var(--sky-pale);color:var(--sky)">Normal</span>
+                </div>
+                <div id="pvAttachList"></div>
+              </div>
+
+              <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); padding:16px; font-size:13px; color:var(--ink-soft); line-height:1.8;">
+                <strong style="color:var(--ink)">Delivery Summary</strong><br>
+                Status Filter: <span id="pvStatus" style="color:var(--ink);font-weight:600">All</span><br>
+                Category Filter: <span id="pvCat" style="color:var(--ink);font-weight:600">All</span><br>
+                Estimated Reach: <span id="pvCount" style="color:var(--primary);font-weight:700">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view-panel" id="viewSent">
+      <div class="sh">
+        <div><div class="ey">Broadcast History</div><h1 class="st">Sent <em>Messages</em></h1><p class="sd">Review previously sent notifications and download their attachments.</p></div>
+        <div style="display:flex;gap:12px; align-items:center;">
+          <div class="sw2"><select id="sentTypeFilter" class="filter-sel" onchange="loadSent()">
+            <option value="All">All Types</option>
+            <option value="general">General</option>
+            <option value="gd-result">GD Result</option>
+            <option value="interview-result">Interview</option>
+          </select></div>
+          <button class="btn bgh" onclick="loadSent()">↻ Refresh</button>
+        </div>
+      </div>
+      
+      <div id="sentList" style="min-height:300px;">
+        <div style="text-align:center;padding:48px;color:var(--ink-muted)">Loading…</div>
+      </div>
+      <div class="pag" id="sentPag" style="justify-content:center; border:none; background:transparent;"></div>
+    </div>
+
+    <div class="view-panel" id="viewCommStats">
+      <div class="sh">
+        <div><div class="ey">Analytics</div><h1 class="st">Communications <em>Overview</em></h1><p class="sd">Data regarding student engagement and broadcast volume.</p></div>
+        <button class="btn bgh" onclick="loadCommStats()">↻ Refresh</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="stat-lbl">Total Sent</div><div class="stat-val" id="stTotalC">—</div><div class="stat-sub">All time broadcasts</div></div>
+        <div class="stat"><div class="stat-lbl">Total Reach</div><div class="stat-val" id="stReachC" style="color:var(--sky)">—</div><div class="stat-sub">Student inboxes hit</div></div>
+        <div class="stat"><div class="stat-lbl">Avg. Recipients</div><div class="stat-val" id="stAvgC">—</div><div class="stat-sub">Per broadcast</div></div>
+      </div>
+
+      <div class="form-card">
+        <div class="gl">Breakdown by Message Type</div>
+        <div style="display:flex; flex-wrap:wrap; gap:16px;" id="typeBreakdown">
+          <div style="color:var(--ink-muted);font-size:14px">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="mhead"><h3 id="modalTitle">Application Details</h3><button class="mclose" onclick="closeModal()">✕</button></div>
+    <div class="mbody" id="mbody">Loading…</div>
+    <div class="mfoot">
+      <button class="btn bpri" onclick="saveAdmin()" id="saveAdminBtn">Save Admin Changes</button>
+      <button class="btn bgh" onclick="closeModal()">Cancel</button>
+      <button class="btn bred" style="margin-left:auto;" onclick="deleteApp()">Delete App</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="tdot s" id="tdot"></div><span id="ttxt"></span></div>
+
+<script>
+// ════════ GLOBALS & CONFIG ════════
+let tok = null, cur_appId = null, page = 1, total = 0;
+let attachedFiles = [], sentPage = 1;
+
+const TYPE_META = {
+  'general':{icon:'📢', color:'var(--sky-pale)', textColor:'var(--sky)', label:'General'},
+  'gd-result':{icon:'📋', color:'var(--green-pale)', textColor:'var(--green)', label:'GD Result'},
+  'interview-result':{icon:'🎤', color:'var(--primary-pale)', textColor:'var(--primary)', label:'Interview'},
+  'roll-number':{icon:'🔢', color:'var(--paper)', textColor:'var(--ink)', label:'Roll Number'},
+  'id-card':{icon:'🪪', color:'var(--warning-pale)', textColor:'var(--warning)', label:'ID Card'},
+  'hall-ticket':{icon:'🎟', color:'var(--paper)', textColor:'var(--ink)', label:'Hall Ticket'},
+  'admit-card':{icon:'📄', color:'var(--green-pale)', textColor:'var(--green)', label:'Admit Card'},
+  'merit-list':{icon:'🏆', color:'var(--goldp)', textColor:'var(--gold)', label:'Merit List'},
+  'fee-notice':{icon:'💳', color:'var(--primary-pale)', textColor:'var(--primary)', label:'Fee Notice'},
+  'schedule':{icon:'📅', color:'var(--sky-pale)', textColor:'var(--sky)', label:'Schedule'},
+  'custom':{icon:'✏️', color:'var(--paper)', textColor:'var(--ink)', label:'Custom'}
+};
+
+const PRI_META = {
+  'normal':{label:'Normal', bg:'var(--sky-pale)', color:'var(--sky)'},
+  'high':{label:'High Priority', bg:'var(--goldp)', color:'var(--gold)'},
+  'urgent':{label:'Urgent', bg:'var(--primary-pale)', color:'var(--primary)'}
+};
+
+// ════════ AUTH ════════
+async function doLogin(){
+  const u=document.getElementById('lu').value, p=document.getElementById('lp').value;
+  const btn=document.getElementById('lbtn');
+  btn.innerHTML='<span class="spin"></span>'; btn.disabled=true;
+  try{
+    const r=await fetch('/api/auth/admin-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+    const d=await r.json();
+    if(!d.success) throw new Error(d.error||'Invalid credentials');
+    tok=d.token;
+    localStorage.setItem('ncuAdminTok',tok);
+    showLayout(u);
+  }catch(e){
+    const el=document.getElementById('lerr');el.textContent=e.message;el.classList.add('show');
+    btn.innerHTML='Sign In Securely';btn.disabled=false;
+  }
+}
+
+function showLayout(u){
+  document.getElementById('loginOver').classList.add('hide');
+  document.getElementById('adminUser').textContent=u||'Admin';
+  // Initialize data
+  loadApps(); 
+  updateAudienceCount(); 
+  loadSentCount();
+}
+
+function logout(){tok=null;localStorage.removeItem('ncuAdminTok');location.reload();}
+
+const saved=localStorage.getItem('ncuAdminTok');
+if(saved){tok=saved;showLayout('admin');}
+
+// ════════ VIEW ROUTING ════════
+const titles = {
+  'tracker': 'Applications Tracker',
+  'compose': 'Compose Message',
+  'sent': 'Sent Broadcasts',
+  'commstats': 'Communications Analytics'
+};
+
+function showAdminView(viewId, navEl) {
+  // Update sidebar active state
+  if(navEl) {
+    document.querySelectorAll('.snav .ni').forEach(n => n.classList.remove('active'));
+    navEl.classList.add('active');
+  }
+  
+  // Hide all panels, show target
+  document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('view' + cap(viewId)).classList.add('active');
+  
+  // Update topbar title
+  document.getElementById('topbarTitle').textContent = titles[viewId] || 'Admin Portal';
+
+  // Lazy loading
+  if(viewId === 'tracker') loadApps();
+  if(viewId === 'sent') loadSent();
+  if(viewId === 'commstats') loadCommStats();
+}
+
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ════════ API HELPER ════════
+async function api(url, method='GET', body=null, isFormData=false) {
+  const opts = { method, headers: {} };
+  if (tok) opts.headers['Authorization'] = 'Bearer ' + tok;
+  if (body && !isFormData) { opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body); }
+  else if (body && isFormData) { opts.body = body; }
+  const r = await fetch(url, opts);
+  if(r.status === 401) { logout(); throw new Error('Session expired'); }
+  return r.json();
+}
+
+// ════════ 1. TRACKER LOGIC ════════
+async function loadApps(){
+  const status=document.getElementById('statusFilter').value;
+  const search=document.getElementById('search').value;
+  try{
+    const url=`/api/admin/applications?page=${page}&limit=15&status=${status}&search=${encodeURIComponent(search)}`;
+    const d=await api(url);
+    if(!d.success) throw new Error(d.error);
+    renderTable(d.applications);
+    renderStats(d.stats);
+    renderPag(d.total);
+    total=d.total;
+    document.getElementById('tableCount').textContent=d.total;
+  }catch(e){showT('e',e.message);}
+}
+
+function renderTable(apps){
+  const tb=document.getElementById('tbody');
+  if(!apps.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center; padding: 40px; color: var(--ink-muted);">No applications found matching your criteria.</td></tr>';return;}
+  tb.innerHTML=apps.map(a=>`<tr onclick="openApp('${a.appId}')">
+    <td>${a.appId}</td>
+    <td style="color:var(--ink); font-weight: 500;">${a.fullName}</td>
+    <td style="color:var(--ink-muted)">${a.email}</td>
+    <td>${a.category}</td>
+    <td>${a.stream}</td>
+    <td>${badge(a.status)}</td>
+    <td style="color:var(--ink-faint);font-size:13px">${fmtDate(a.updatedAt)}</td>
+  </tr>`).join('');
+}
+
+function renderStats(s){
+  if(!s) return;
+  document.getElementById('stTotalA').textContent=s.total||0;
+  document.getElementById('stPendA').textContent=s.pending||0;
+  document.getElementById('stApprA').textContent=s.approved||0;
+  document.getElementById('stRejeA').textContent=s.rejected||0;
+}
+
+function renderPag(t){
+  const pages=Math.ceil(t/15);
+  const pr=document.getElementById('pagRow');
+  if(pages<=1){pr.innerHTML='';return;}
+  let html='';
+  for(let i=1;i<=Math.min(pages,8);i++) html+=`<button class="pag-btn${i===page?' active':''}" onclick="goPage(${i})">${i}</button>`;
+  html+=`<div class="pag-info">Page ${page} of ${pages}</div>`;
+  pr.innerHTML=html;
+}
+
+function goPage(p){page=p;loadApps();}
+
+function badge(s){
+  const map={Pending:'pend',Approved:'appr',Rejected:'reje','On Hold':'hold',Draft:'draf',Submitted:'sub'};
+  return `<span class="badge b-${map[s]||'draf'}">${s||'Draft'}</span>`;
+}
+
+// ── APP MODAL ──
+async function openApp(appId){
+  cur_appId=appId;
+  document.getElementById('modalTitle').textContent=appId;
+  document.getElementById('mbody').innerHTML='<div style="text-align:center;padding:60px;color:var(--ink-muted)"><span class="spin" style="border-top-color:var(--ink); border-color:var(--border); width:24px; height:24px; margin-bottom:12px"></span><br>Loading details...</div>';
+  document.getElementById('modalBg').classList.add('show');
+  try{
+    const d=await api('/api/admin/applications/'+appId);
+    if(!d.success) throw new Error(d.error);
+    renderDetail(d.application);
+  }catch(e){document.getElementById('mbody').innerHTML=`<p style="color:var(--primary);padding:20px">${e.message}</p>`;}
+}
+
+function renderDetail(a){
+  const p=a.personal||{}, addr=a.address||{}, ac=a.academic||{}, pay=a.payment||{};
+  document.getElementById('mbody').innerHTML=`
+    <div class="mrow">
+      <div class="mkpi"><div class="mkpi-lbl">Current Status</div><div class="mkpi-val">${badge(a.status)}</div></div>
+      <div class="mkpi"><div class="mkpi-lbl">Submitted Date</div><div class="mkpi-val" style="font-size:14px; font-weight:500;">${fmtDate(a.submittedAt)||'Not submitted'}</div></div>
+      <div class="mkpi"><div class="mkpi-lbl">Admission No.</div><div class="mkpi-val" style="font-size:14px; font-weight:500;" id="admNoDisplay">${a.admissionNo||'—'}</div></div>
+    </div>
+    <div class="msec"><div class="msec-title">Personal Details</div>
+      <div class="mdata">
+        <div><strong>Full Name:</strong> <span style="color:var(--ink); font-weight:500;">${p.fullName||'—'}</span></div>
+        <div><strong>Father's Name:</strong> ${p.fatherName||'—'}</div>
+        <div><strong>Mother's Name:</strong> ${p.motherName||'—'}</div>
+        <div><strong>DOB:</strong> ${p.dob||'—'} &nbsp;|&nbsp; <strong>Gender:</strong> ${p.gender||'—'}</div>
+        <div><strong>Category:</strong> ${p.category||'—'} &nbsp;|&nbsp; <strong>Nationality:</strong> ${p.nationality||'—'}</div>
+        <div><strong>Mobile:</strong> ${p.mobile||'—'} &nbsp;|&nbsp; <strong>Email:</strong> ${p.email||'—'}</div>
+        <div><strong>Aadhaar:</strong> ${p.aadhaar||'—'}</div>
+      </div>
+    </div>
+    <div class="msec"><div class="msec-title">Academic History</div>
+      <div class="mdata">
+        <div><strong>10th Board:</strong> ${ac.board10||'—'} — ${ac.pct10||'—'} (${ac.year10||'—'})</div>
+        <div><strong>12th Board:</strong> ${ac.board12||'—'} — ${ac.pct12||'—'} (${ac.year12||'—'})</div>
+        <div><strong>Stream:</strong> <span style="font-weight:500; color:var(--ink)">${ac.stream||'—'}</span></div>
+        ${ac.examName?`<div><strong>Entrance Exam:</strong> ${ac.examName} | Roll: ${ac.examRoll||'—'} | Score: ${ac.examScore||'—'}</div>`:''}
+      </div>
+    </div>
+    <div class="msec"><div class="msec-title">Uploaded Documents</div>
+      <div class="mdata">${Object.keys(a.documents||{}).length?Object.entries(a.documents).map(([k,v])=>`<div><strong>${k.toUpperCase()}:</strong> <a href="#" style="color:var(--sky); text-decoration:none; font-weight:500;">${v.originalName}</a> (${Math.round(v.size/1024)}KB)</div>`).join(''):'<span style="color:var(--ink-faint)">No documents uploaded.</span>'}</div>
+    </div>
+    <div class="msec" style="background:var(--paper); border-color:var(--border); margin-bottom:0;"><div class="msec-title">Admin Controls & Review</div>
+      <div class="sp2">
+        <div class="sp2-pill${a.status==='Pending'?' pend':''}" onclick="setS('Pending',this)">⏳ Mark Pending</div>
+        <div class="sp2-pill${a.status==='Approved'?' appr':''}" onclick="setS('Approved',this)">✓ Approve</div>
+        <div class="sp2-pill${a.status==='Rejected'?' reje':''}" onclick="setS('Rejected',this)">✗ Reject</div>
+        <div class="sp2-pill${a.status==='On Hold'?' hold':''}" onclick="setS('On Hold',this)">⚠ Put On Hold</div>
+      </div>
+      <div class="mfield"><label>Assign Admission Number</label><input type="text" id="admNoInput" placeholder="e.g. DYD/2025/BTech/0042" value="${a.admissionNo||''}"></div>
+      <div class="mfield"><label>Internal Admin Remarks</label><textarea id="adminRemarks" placeholder="Add private notes...">${a.adminRemarks||''}</textarea></div>
+    </div>`;
+}
+
+let selectedStatus = null;
+function setS(status, el) {
+  document.querySelectorAll('.sp2-pill').forEach(p => { p.className = 'sp2-pill'; });
+  const cls = {Pending:'pend',Approved:'appr',Rejected:'reje','On Hold':'hold'}[status]||'';
+  el.className = 'sp2-pill ' + cls;
+  selectedStatus = status;
+}
+
+async function saveAdmin(){
+  if(!cur_appId) return;
+  const btn=document.getElementById('saveAdminBtn');
+  btn.innerHTML='<span class="spin"></span>';btn.disabled=true;
+  try{
+    const body={};
+    if(selectedStatus) body.status=selectedStatus;
+    const admNo=document.getElementById('admNoInput')?.value; if(admNo!==undefined)body.admissionNo=admNo;
+    const rem=document.getElementById('adminRemarks')?.value; if(rem!==undefined)body.adminRemarks=rem;
+    const d=await api('/api/admin/applications/'+cur_appId,'PATCH',body);
+    if(!d.success)throw new Error(d.error);
+    showT('s','Application updated successfully');
+    if(body.admissionNo!==undefined) document.getElementById('admNoDisplay').textContent=body.admissionNo||'—';
+    loadApps();
+  }catch(e){showT('e',e.message);}
+  btn.innerHTML='Save Admin Changes';btn.disabled=false;
+}
+
+async function deleteApp(){
+  if(!cur_appId||!confirm('WARNING: Are you sure you want to permanently delete this application?')) return;
+  try{
+    const d=await api('/api/admin/applications/'+cur_appId,'DELETE');
+    if(!d.success)throw new Error(d.error);
+    showT('s','Application deleted');
+    closeModal();loadApps();
+  }catch(e){showT('e',e.message);}
+}
+
+function closeModal(e){if(!e||e.target===document.getElementById('modalBg')){document.getElementById('modalBg').classList.remove('show');cur_appId=null;selectedStatus=null;}}
+
+
+// ════════ 2. COMMS LOGIC ════════
+
+// ── AUDIENCE COUNT ──
+async function updateAudienceCount() {
+  try {
+    const status = document.getElementById('targetStatus').value;
+    const cat    = document.getElementById('targetCat').value;
+    const r = await api('/api/admin/applications?limit=1000');
+    if (!r.success) return;
+    let apps = r.applications || [];
+    if (status !== 'All') apps = apps.filter(a => a.status === status);
+    if (cat !== 'All') apps = apps.filter(a => a.category === cat);
+    document.getElementById('audTotal').textContent  = apps.length;
+    document.getElementById('audEmails').textContent = apps.filter(a=>a.email&&a.email!=='—').length;
+    document.getElementById('pvCount').textContent   = apps.length + ' students';
+    document.getElementById('pvStatus').textContent  = status;
+    document.getElementById('pvCat').textContent     = cat;
+  } catch(e) {}
+}
+
+async function loadSentCount() {
+  try {
+    const r = await api('/api/admin/notifications');
+    if (r.success) document.getElementById('sentCount').textContent = r.total || 0;
+  } catch(e) {}
+}
+
+// ── TYPE & PRIORITY ──
+function setType(radio) {
+  document.querySelectorAll('.type-opt').forEach(o => o.classList.remove('sel'));
+  radio.closest('.type-opt').classList.add('sel');
+  updatePreview();
+}
+function setPri(radio) {
+  document.querySelectorAll('.pri-opt').forEach(o => o.classList.remove('sel'));
+  radio.closest('.pri-opt').classList.add('sel');
+  updatePreview();
+}
+
+// ── LIVE PREVIEW ──
+function updatePreview() {
+  const type = document.querySelector('input[name="mtype"]:checked')?.value || 'general';
+  const pri  = document.querySelector('input[name="priority"]:checked')?.value || 'normal';
+  const meta = TYPE_META[type] || TYPE_META.general;
+  const pm   = PRI_META[pri];
+
+  const pvIcon = document.getElementById('pvIcon');
+  pvIcon.textContent = meta.icon;
+  pvIcon.style.background = meta.color;
+  pvIcon.style.color = meta.textColor;
+
+  document.getElementById('pvTitle').textContent = document.getElementById('notifTitle').value || 'Your notification title';
+  document.getElementById('pvBody').textContent  = document.getElementById('notifBody').value || 'Your message will appear here…';
+  
+  const badge = document.getElementById('pvBadge');
+  badge.textContent = pm.label;
+  badge.style.background = pm.bg;
+  badge.style.color = pm.color;
+
+  document.getElementById('pvAttachList').innerHTML = attachedFiles.map(f=>`<div class="pc-attach"><span>${fileIcon(f.name)}</span><span>${f.name}</span></div>`).join('');
+}
+
+// ── ATTACHMENTS ──
+function handleAttachments(input) {
+  const files = Array.from(input.files);
+  const existing = attachedFiles.map(f=>f.name);
+  files.forEach(f => { if (!existing.includes(f.name) && attachedFiles.length < 5) attachedFiles.push(f); });
+  renderAttachList();
+  updatePreview();
+  input.value = '';
+}
+function removeAttach(idx) { attachedFiles.splice(idx, 1); renderAttachList(); updatePreview(); }
+function renderAttachList() {
+  document.getElementById('attachList').innerHTML = attachedFiles.map((f,i)=>`
+    <div class="attach-item">
+      <span>${fileIcon(f.name)}</span>
+      <span class="attach-item-name">${f.name}</span>
+      <span style="font-size:11px;color:var(--ink-faint)">${fmtSize(f.size)}</span>
+      <button class="attach-item-del" onclick="removeAttach(${i})">✕</button>
+    </div>`).join('');
+}
+function fileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  return {pdf:'📄',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',jpg:'🖼',jpeg:'🖼',png:'🖼',zip:'🗜',txt:'📋'}[ext] || '📎';
+}
+function fmtSize(b) { return b>1024*1024 ? (b/1024/1024).toFixed(1)+'MB' : Math.round(b/1024)+'KB'; }
+
+// ── SEND NOTIFICATION ──
+async function sendNotification() {
+  const title = document.getElementById('notifTitle').value.trim();
+  const body  = document.getElementById('notifBody').value.trim();
+  if (!title) { showT('e','Please enter a notification title'); return; }
+  if (!body)  { showT('e','Please write a message body'); return; }
+
+  const type     = document.querySelector('input[name="mtype"]:checked')?.value || 'general';
+  const priority = document.querySelector('input[name="priority"]:checked')?.value || 'normal';
+  const status   = document.getElementById('targetStatus').value;
+  const cat      = document.getElementById('targetCat').value;
+  const btn      = document.getElementById('sendBtn');
+
+  btn.innerHTML='<span class="spin"></span> Broadcasting…'; btn.disabled=true;
+
+  try {
+    const fd = new FormData();
+    fd.append('title', title); fd.append('body', body); fd.append('type', type);
+    fd.append('priority', priority); fd.append('targetStatus', status); fd.append('targetCategory', cat);
+    attachedFiles.forEach(f => fd.append('attachments', f));
+
+    const r = await api('/api/admin/notifications','POST', fd, true);
+    if (!r.success) throw new Error(r.error);
+
+    showT('s', `✓ Sent to ${r.recipientCount} student(s)`);
+    clearForm(); loadSentCount();
+  } catch(e) { showT('e', e.message); }
+  btn.innerHTML='📤 Broadcast Message'; btn.disabled=false;
+}
+
+function clearForm() {
+  document.getElementById('notifTitle').value = '';
+  document.getElementById('notifBody').value  = '';
+  attachedFiles = [];
+  renderAttachList();
+  document.querySelector('input[name="mtype"][value="general"]').click();
+  document.querySelector('input[name="priority"][value="normal"]').click();
+  document.getElementById('targetStatus').value = 'All';
+  document.getElementById('targetCat').value    = 'All';
+  updatePreview(); updateAudienceCount();
+}
+
+function quickCompose(type, icon, label) {
+  showAdminView('compose');
+  const radio = document.querySelector(`input[name="mtype"][value="${type}"]`);
+  if (radio) { radio.click(); }
+  document.getElementById('notifTitle').value = label + ' — DYD Admissions 2025';
+  document.getElementById('notifBody').value = `Dear Student,\n\nWe are pleased to share the ${label} for the ongoing admission process.\n\nPlease find the details attached. If you have any queries, contact the admissions office.\n\nRegards,\nAdmissions Office\nDYD Jammu University`;
+  updatePreview();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── LOAD SENT MESSAGES ──
+async function loadSent(page=1) {
+  sentPage = page;
+  const type = document.getElementById('sentTypeFilter').value;
+  document.getElementById('sentList').innerHTML = '<div style="text-align:center;padding:48px;color:var(--ink-muted)">Loading…</div>';
+  try {
+    const r = await api(`/api/admin/notifications?page=${page}&type=${type}`);
+    if (!r.success) throw new Error(r.error);
+    renderSentList(r.notifications || [], r.total || 0);
+    document.getElementById('sentCount').textContent = r.total || 0;
+  } catch(e) { showT('e', e.message); }
+}
+
+function renderSentList(notifs, totalCount) {
+  const el = document.getElementById('sentList');
+  if (!notifs.length) {
+    el.innerHTML = `<div style="text-align:center; padding: 60px; color: var(--ink-muted);">No broadcast messages found.</div>`;
+    return;
+  }
+  el.innerHTML = notifs.map(n => {
+    const meta = TYPE_META[n.type] || TYPE_META.general;
+    return `
+    <div class="nl-card">
+      <div class="nl-card-head" onclick="toggleDetail('nd-${n.id}')">
+        <div class="nl-type-badge" style="background:${meta.color}; color:${meta.textColor}">${meta.icon}</div>
+        <div class="nl-info">
+          <div class="nl-title">${escHtml(n.title)}</div>
+          <div class="nl-meta">Sent ${fmtDate(n.sentAt)} · <strong>${n.recipientCount}</strong> recipients</div>
+          <div class="nl-tags">
+            <span class="tag" style="background:${meta.color};color:${meta.textColor}">${meta.label}</span>
+            <span class="tag tag-all">${n.targetStatus==='All'?'All Students':n.targetStatus}</span>
+          </div>
+        </div>
+        <div class="nl-actions">
+          <button class="btn bgh" style="padding:6px 10px;font-size:14px" onclick="event.stopPropagation();deleteNotif('${n.id}')" title="Delete">🗑</button>
+        </div>
+      </div>
+      <div class="nl-detail" id="nd-${n.id}">
+        <div class="nl-detail-inner">
+          <div class="nl-body-txt">${escHtml(n.body)}</div>
+          ${n.attachments?.length ? `
+            <div style="font-size:11px; font-weight:700; color:var(--ink-muted); text-transform:uppercase; margin-bottom:8px">Attachments</div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              ${n.attachments.map(a=>`<a class="dl-card" href="/api/notif-files/${a.filename}" download="${a.originalName}">
+                <span style="font-size:20px">${fileIcon(a.originalName)}</span>
+                <div style="flex:1"><div class="dl-name">${escHtml(a.originalName)}</div><div style="font-size:10px;color:var(--ink-muted)">${fmtSize(a.size)}</div></div>
+              </a>`).join('')}
+            </div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Pagination
+  const pages = Math.ceil(totalCount / 20);
+  document.getElementById('sentPag').innerHTML = pages > 1 ? Array.from({length:pages},(_,i)=>`<button onclick="loadSent(${i+1})" class="pag-btn ${i+1===sentPage?'active':''}">${i+1}</button>`).join('') : '';
+}
+
+function toggleDetail(id) { document.getElementById(id).classList.toggle('open'); }
+
+async function deleteNotif(id) {
+  if (!confirm('Delete this broadcast permanently?')) return;
+  try {
+    const r = await api(`/api/admin/notifications/${id}`, 'DELETE');
+    if (!r.success) throw new Error(r.error);
+    showT('s', 'Broadcast deleted'); loadSent(sentPage); loadSentCount();
+  } catch(e) { showT('e', e.message); }
+}
+
+// ── COMM STATS ──
+async function loadCommStats() {
+  try {
+    const r = await api('/api/admin/notifications/stats/summary');
+    if (!r.success) throw new Error(r.error);
+    document.getElementById('stTotalC').textContent = r.total || 0;
+    document.getElementById('stReachC').textContent = r.totalReach || 0;
+    document.getElementById('stAvgC').textContent   = r.total ? Math.round(r.totalReach / r.total) : 0;
+    
+    const tb = document.getElementById('typeBreakdown');
+    tb.innerHTML = (r.byType || []).filter(t=>t.count>0).map(t => {
+      const meta = TYPE_META[t.type] || TYPE_META.general;
+      return `<div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:16px; display:flex; align-items:center; gap:12px; flex:1; min-width:180px;">
+        <span style="font-size:24px">${meta.icon}</span>
+        <div><div style="font-size:12px; font-weight:600; color:var(--ink-soft);">${meta.label}</div><div style="font-family:'Merriweather',serif; font-size:20px; font-weight:700; color:var(--ink);">${t.count}</div></div>
+      </div>`;
+    }).join('') || '<div style="color:var(--ink-muted);font-size:14px">No data yet</div>';
+  } catch(e) { showT('e', e.message); }
+}
+
+// ════════ UTILS ════════
+let _st; function debSearch(v){clearTimeout(_st);_st=setTimeout(()=>{page=1;loadApps();},400);}
+function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function showT(type,msg){const el=document.getElementById('toast');document.getElementById('tdot').className='tdot '+type;document.getElementById('ttxt').textContent=msg;el.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>el.classList.remove('show'),3200);}
+</script>
+</body>
+</html>

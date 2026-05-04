@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admissions 2026 — DYD | Jammu University</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+/* MIT-Level Academic UI Overhaul - UNIFIED PORTAL */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #0F172A; --ink-soft: #334155; --ink-muted: #64748B; --ink-faint: #94A3B8;
+  --paper: #F1F5F9; --surface: #FFFFFF; --border: #E2E8F0; --border-focus: #CBD5E1;
+  --primary: #A31F34; --primary-hover: #821829; --primary-pale: #FDF2F4;
+  --sky: #2563EB; --sky-pale: #EFF6FF;
+  --green: #059669; --green-pale: #ECFDF5;
+  --warning: #D97706; --warning-pale: #FFFBEB;
+  
+  --sw: 280px; --r: 8px; --r-lg: 16px;
+  --t: all 0.2s ease;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 10px 25px -5px rgba(15, 23, 42, 0.05);
+}
+
+body { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; display: flex; -webkit-font-smoothing: antialiased; }
+
+/* ── AUTHENTICATION GATEWAY MODAL ── */
+.auth-modal { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; transition: opacity 0.3s ease; }
+.auth-box { background: var(--surface); width: 100%; max-width: 440px; border-radius: 20px; padding: 48px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+.auth-logo { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
+.auth-logo .ulogo { width: 56px; height: 56px; background: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Merriweather', serif; font-size: 28px; font-weight: 900; color: #fff; box-shadow: 0 8px 20px rgba(163, 31, 52, 0.3); }
+.auth-tabs { display: flex; gap: 8px; margin-bottom: 24px; background: var(--paper); padding: 6px; border-radius: 10px; }
+.auth-tab { flex: 1; text-align: center; padding: 10px; font-size: 14px; font-weight: 600; color: var(--ink-muted); cursor: pointer; border-radius: 6px; transition: var(--t); user-select: none; }
+.auth-tab.active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
+.auth-desc { font-size: 14px; color: var(--ink-muted); margin-bottom: 24px; line-height: 1.5; }
+
+/* ── SIDEBAR ── */
+.sidebar { width: var(--sw); min-height: 100vh; background: #020617; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; border-right: 1px solid rgba(255,255,255,0.05); }
+.stop { padding: 32px 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.umark { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.ulogo { width: 44px; height: 44px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Merriweather', serif; font-size: 22px; font-weight: 900; color: #fff; flex-shrink: 0; }
+.uname { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; color: #fff; line-height: 1.2; }
+.uname small { display: block; font-size: 10px; font-weight: 500; letter-spacing: 0.5px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+.achip { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 10px 12px; font-size: 11px; font-weight: 500; letter-spacing: 0.5px; color: rgba(255,255,255,0.6); display: flex; justify-content: space-between; }
+.achip span { color: #fff; font-weight: 700; }
+
+.snav { flex: 1; padding: 24px 0; overflow-y: auto; }
+.nlbl { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; color: rgba(255,255,255,0.3); padding: 0 24px 16px; }
+.ni { display: flex; align-items: center; gap: 14px; padding: 14px 24px; cursor: pointer; transition: var(--t); position: relative; user-select: none; }
+.ni:hover { background: rgba(255,255,255,0.03); }
+.ni.active { background: linear-gradient(90deg, rgba(163,31,52,0.1) 0%, transparent 100%); }
+.ni.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--primary); }
+.nnum { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); flex-shrink: 0; transition: var(--t); }
+.ni.active .nnum { background: var(--primary); border-color: var(--primary); color: #fff; }
+.ni.done .nnum { background: rgba(5,150,105,0.2); border-color: rgba(5,150,105,0.4); color: var(--green); }
+.ni.done .nnum::after { content: '✓'; font-size: 10px; }
+.ntxt { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500; transition: var(--t); }
+.ni.active .ntxt { color: #fff; font-weight: 600; }
+.ni.done .ntxt { color: rgba(255,255,255,0.8); }
+
+.sfoot { padding: 24px; border-top: 1px solid rgba(255,255,255,0.05); }
+.pr { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.4); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.pr span { color: #fff; }
+.pt { height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+.pf { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* ── MAIN AREA ── */
+.main { margin-left: var(--sw); flex: 1; display: flex; flex-direction: column; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 48px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+.crumb { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--ink-muted); font-weight: 500; }
+.crumb strong { color: var(--ink); font-weight: 600; }
+.tbr { display: flex; gap: 16px; align-items: center; }
+.sst { font-size: 12px; font-weight: 600; color: var(--ink-muted); }
+
+.sbtn { background: transparent; border: 1px solid var(--border-focus); border-radius: var(--r); padding: 8px 16px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--ink-soft); cursor: pointer; transition: var(--t); }
+.sbtn:hover { border-color: var(--ink); color: var(--ink); background: var(--paper); }
+.cont { flex: 1; padding: 48px; max-width: 1040px; margin: 0 auto; width: 100%; }
+
+.sh { margin-bottom: 32px; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.ey { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--primary); font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.ey::before { content: ''; width: 24px; height: 2px; background: var(--primary); border-radius: 2px; }
+.st { font-family: 'Merriweather', serif; font-size: clamp(28px, 4vw, 36px); font-weight: 900; color: var(--ink); line-height: 1.2; letter-spacing: -0.5px; }
+.st em { color: var(--primary); font-style: italic; font-weight: 700; }
+.sd { font-size: 15px; color: var(--ink-muted); margin-top: 12px; line-height: 1.6; max-width: 600px; }
+
+/* ── FORM ELEMENTS ── */
+.form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 40px; box-shadow: var(--shadow-card); margin-bottom: 32px; }
+.gl { font-family: 'Merriweather', serif; font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+.gl::before { content: ''; width: 4px; height: 16px; background: var(--primary); border-radius: 4px; }
+
+.fr { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; margin-bottom: 24px; }
+.fr:last-child { margin-bottom: 0; }
+.c2{grid-column:span 2} .c3{grid-column:span 3} .c4{grid-column:span 4} .c5{grid-column:span 5} .c6{grid-column:span 6} .c8{grid-column:span 8} .c12{grid-column:span 12}
+@media (max-width: 850px) { .c2,.c3,.c4,.c5,.c6,.c8 { grid-column: span 12; } }
+
+.f { display: flex; flex-direction: column; gap: 8px; }
+.f label { font-size: 11px; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+.rd { color: var(--primary); font-size: 14px; line-height: 1; margin-top: -2px; }
+.f input, .f select, .f textarea { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500; color: var(--ink); padding: 12px 16px; outline: none; transition: var(--t); width: 100%; box-sizing: border-box; appearance: none; -webkit-appearance: none; box-shadow: inset 0 1px 2px rgba(0,0,0,0.01); }
+.f input::placeholder, .f textarea::placeholder { color: var(--ink-faint); font-weight: 400; }
+.f input:focus, .f select:focus, .f textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(163, 31, 52, 0.1); background: var(--surface); }
+.f textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+.sw2 { position: relative; display: block; width: 100%; }
+.sw2::after { content: ''; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; pointer-events: none; }
+.sw2 select { padding-right: 40px; cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+
+/* ── PASSWORD STRENGTH ── */
+.pwdt { height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+.pwdf { height: 100%; border-radius: 4px; width: 0; transition: width 0.3s, background 0.3s; }
+.pwdtx { font-size: 11px; font-weight: 600; color: var(--ink-muted); margin-top: 6px; text-align: right; }
+.eb { background: var(--primary-pale); border: 1px solid rgba(163,31,52,0.2); border-left: 4px solid var(--primary); border-radius: var(--r); padding: 12px 16px; font-size: 13px; font-weight: 500; color: var(--primary); display: none; }
+.eb.show { display: block; animation: fadeUp 0.3s ease; }
+
+/* ── BUTTONS ── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 28px; border-radius: var(--r); font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: var(--t); }
+.bpri { background: var(--ink); color: #fff; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
+.bpri:hover:not(:disabled) { background: #000; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15, 23, 42, 0.3); }
+.bpri:disabled { background: var(--border-focus); cursor: not-allowed; transform: none; box-shadow: none; }
+.bgh { background: var(--surface); border: 1px solid var(--border); color: var(--ink-soft); }
+.bgh:hover { border-color: var(--ink); color: var(--ink); background: var(--paper); }
+.bred { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(163, 31, 52, 0.3); }
+.bred:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(163, 31, 52, 0.4); }
+
+.ff { padding: 24px 48px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); position: sticky; bottom: 0; z-index: 40; }
+.fl2 { display: flex; align-items: center; gap: 16px; }
+.si { font-size: 14px; color: var(--ink-muted); font-weight: 500; }
+.si strong { color: var(--ink); font-weight: 700; }
+
+.sp { display: none; }
+.sp.active { display: block; animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── RESULTS DASHBOARD (TRACKER) ── */
+.dash-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; }
+@media(max-width: 900px) { .dash-grid { grid-template-columns: 1fr; } }
+.dash-col-title { font-size: 11px; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+
+.doc-card { border: 1px solid var(--border); border-radius: var(--r-lg); padding: 20px; transition: var(--t); margin-bottom: 16px; background: var(--surface); }
+.doc-card:hover { border-color: var(--border-focus); box-shadow: var(--shadow-sm); }
+.doc-icon { font-size: 28px; margin-bottom: 12px; }
+.doc-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.doc-sub { font-size: 12px; color: var(--ink-muted); margin-bottom: 16px; }
+.doc-status { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; float: right; }
+
+.stage-card { display: flex; align-items: center; justify-content: space-between; padding: 20px; border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 16px; background: var(--surface); }
+.stage-card.cleared { background: var(--green-pale); border-color: rgba(5,150,105,0.2); }
+.stage-card.active { background: var(--primary-pale); border-color: rgba(163,31,52,0.2); box-shadow: 0 0 15px rgba(163,31,52,0.05); }
+.stage-num { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.stage-card.cleared .stage-num { background: rgba(5,150,105,0.15); color: var(--green); }
+.stage-card.active .stage-num { background: var(--primary); color: #fff; }
+.stage-card.pending .stage-num { background: var(--paper); color: var(--ink-muted); border: 1px solid var(--border); }
+
+.stage-info { flex: 1; margin: 0 16px; }
+.stage-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.stage-card.active .stage-title { color: var(--primary); }
+.stage-date { font-size: 12px; color: var(--ink-muted); }
+
+.stage-result { text-align: right; }
+.sr-status { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.stage-card.cleared .sr-status { color: var(--green); }
+.stage-card.active .sr-status { color: var(--primary); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; background: #fff; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(163,31,52,0.2); }
+.sr-score { font-size: 12px; font-weight: 500; color: var(--ink-muted); }
+
+/* Upload Zones */
+.uz { border: 2px dashed var(--border-focus); border-radius: var(--r-lg); background: var(--paper); padding: 24px 16px; text-align: center; cursor: pointer; transition: var(--t); position: relative; overflow: hidden; }
+.uz:hover { border-color: var(--primary); background: var(--primary-pale); }
+.uz input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.uic { width: 48px; height: 48px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 12px; box-shadow: var(--shadow-sm); transition: var(--t); }
+.uz:hover .uic { transform: translateY(-2px); border-color: var(--primary); color: var(--primary); }
+.uz p { font-size: 14px; color: var(--ink-soft); line-height: 1.4; }
+.uz strong { color: var(--ink); font-weight: 600; }
+.uz small { font-size: 12px; color: var(--ink-muted); display: block; margin-top: 6px; }
+.uz.uploading { border-color: var(--sky); background: var(--sky-pale); }
+.uz.done { border-color: var(--green); background: var(--green-pale); border-style: solid; }
+.uz.done .uic { background: var(--green); color: #fff; border-color: var(--green); }
+.ufn { font-size: 13px; color: var(--green); font-weight: 600; margin-top: 8px; display: none; }
+.uz.done .ufn { display: block; }
+
+.dg { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
+.dc { border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface); overflow: hidden; transition: var(--t); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+.dc:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.dc.done { border-color: var(--green); }
+.dctop { background: var(--paper); padding: 24px; display: flex; align-items: center; justify-content: center; height: 80px; font-size: 28px; border-bottom: 1px solid var(--border); }
+.dc.done .dctop { background: var(--green-pale); }
+.dcb { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+.dclbl { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.4; margin-bottom: 4px; }
+.dcsub { font-size: 12px; color: var(--ink-muted); }
+.dcst { font-size: 12px; font-weight: 600; color: var(--green); margin-top: 12px; display: none; background: rgba(5,150,105,0.1); padding: 4px 8px; border-radius: 4px; width: fit-content; }
+.dc.done .dcst { display: inline-block; }
+.dcin { position: relative; margin-top: auto; padding-top: 20px; }
+.dcbtn { width: 100%; background: var(--surface); border: 1px solid var(--border-focus); border-radius: var(--r); padding: 10px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--ink-soft); cursor: pointer; transition: var(--t); text-align: center; }
+.dc:hover .dcbtn { border-color: var(--primary); color: var(--primary); }
+.dc.done .dcbtn { background: var(--green); color: #fff; border-color: var(--green); }
+.dcin input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+/* Payment & Modules */
+.fh { background: var(--ink); border-radius: var(--r-lg); padding: 32px; margin-bottom: 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3); }
+.fa { font-family: 'Merriweather', serif; font-size: 48px; font-weight: 900; color: #fff; line-height: 1; }
+.fa sup { font-size: 24px; vertical-align: super; font-weight: 700; margin-right: 4px; color: rgba(255,255,255,0.7); }
+.fd { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 8px; font-weight: 500; }
+.fb { text-align: right; background: rgba(255,255,255,0.1); padding: 16px 24px; border-radius: var(--r); }
+.fl { font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 6px; display: flex; gap: 32px; justify-content: space-between; }
+.fl:last-child { margin-bottom: 0; }
+.fl strong { color: #fff; font-size: 14px; }
+
+.pms { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
+.pm { flex: 1; min-width: 140px; border: 1.5px solid var(--border); border-radius: var(--r-lg); background: var(--surface); padding: 20px 16px; cursor: pointer; transition: var(--t); text-align: center; }
+.pm:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.pm.sel { border-color: var(--primary); background: var(--primary-pale); box-shadow: 0 0 0 2px rgba(163, 31, 52, 0.2); }
+.pm input[type=radio] { display: none; }
+.pmi { font-size: 24px; margin-bottom: 8px; }
+.pmn { font-size: 14px; font-weight: 600; color: var(--ink-soft); }
+.pm.sel .pmn { color: var(--primary); }
+
+.ds { background: var(--paper); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 32px; max-height: 240px; overflow-y: auto; font-size: 14px; color: var(--ink-soft); line-height: 1.8; margin-bottom: 24px; }
+.ds::-webkit-scrollbar { width: 6px; }
+.ds::-webkit-scrollbar-thumb { background: var(--border-focus); border-radius: 4px; }
+.cbr { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; margin-bottom: 24px; padding: 16px; background: var(--paper); border-radius: var(--r); border: 1px solid var(--border); transition: var(--t); }
+.cbr:hover { border-color: var(--ink-muted); }
+.cbr input[type=checkbox] { width: 20px; height: 20px; min-width: 20px; accent-color: var(--primary); cursor: pointer; margin-top: 2px; }
+.cbr span { font-size: 14px; font-weight: 500; color: var(--ink); line-height: 1.5; }
+
+/* Success Screen */
+.sw2-success { padding: 100px 48px; text-align: center; max-width: 600px; margin: 0 auto; }
+.sr { width: 96px; height: 96px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 40px; color: #fff; margin: 0 auto 32px; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3); animation: pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+.sw2-success h2 { font-family: 'Merriweather', serif; font-size: 36px; font-weight: 900; color: var(--ink); margin-bottom: 16px; }
+.sw2-success p { font-size: 16px; color: var(--ink-muted); line-height: 1.6; }
+.sid { display: inline-block; margin: 32px 0; background: var(--surface); border: 2px dashed var(--border-focus); border-radius: var(--r-lg); padding: 16px 32px; font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; color: var(--primary); letter-spacing: 2px; box-shadow: var(--shadow-sm); }
+.sg { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 40px auto; }
+.si2 { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 20px; box-shadow: var(--shadow-sm); }
+.si2-i { font-size: 24px; margin-bottom: 12px; }
+.si2-t { font-size: 13px; font-weight: 600; color: var(--ink-soft); line-height: 1.4; }
+
+/* Toast & Feedback */
+.toast { position: fixed; bottom: 32px; right: 32px; background: var(--ink); color: #fff; border-radius: var(--r); padding: 16px 24px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 99999; transform: translateY(150%); opacity: 0; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s; max-width: 320px; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.td { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.td.s { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.td.w { background: var(--warning); }
+.td.e { background: var(--primary); }
+.spin { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: sp2 0.8s linear infinite; display: inline-block; }
+@keyframes sp2 { to { transform: rotate(360deg); } }
+
+@media(max-width: 900px) { .sidebar { display: none; } .main { margin-left: 0; } .cont, .ff { padding-left: 24px; padding-right: 24px; } .st { font-size: 28px; } .sg { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- ── UNIFIED GATEWAY SELECTION ── -->
+<div class="auth-modal" id="gatewayModal" style="display:flex;">
+  <div class="auth-box" style="max-width: 640px; text-align: center; padding: 56px 48px;">
+    <div style="width: 64px; height: 64px; background: var(--primary); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-family: 'Merriweather', serif; font-size: 32px; font-weight: 900; color: #fff; box-shadow: 0 8px 20px rgba(163, 31, 52, 0.3); margin: 0 auto 24px;">D</div>
+    <h2 style="font-family:'Merriweather',serif;color:var(--ink);font-size:32px;font-weight:900;margin-bottom:12px;letter-spacing:-0.5px;">DYD Admissions 2026</h2>
+    <p style="color:var(--ink-muted);font-size:16px;margin-bottom:48px;">Welcome to the centralized portal. Please select your destination.</p>
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+      
+      <!-- Student Card -->
+      <div style="border:1px solid var(--border); border-radius:var(--r-lg); padding:32px 24px; cursor:pointer; transition:var(--t); background:var(--surface); display:flex; flex-direction:column; align-items:center;" 
+           onmouseover="this.style.borderColor='var(--primary)'; this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)';" 
+           onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'; this.style.boxShadow='none';"
+           onclick="document.getElementById('gatewayModal').style.display='none'; document.getElementById('authModal').style.display='flex';">
+        <div style="font-size:48px; margin-bottom:20px; line-height:1;">🎓</div>
+        <h3 style="font-size:18px; font-weight:700; color:var(--ink); margin-bottom:12px;">Applicant Portal</h3>
+        <p style="font-size:13px; color:var(--ink-muted); line-height:1.6; margin:0;">Submit new applications, pay fees, and track your admission status.</p>
+      </div>
+
+      <!-- Admin Card -->
+      <div style="border:1px solid var(--border); border-radius:var(--r-lg); padding:32px 24px; cursor:pointer; transition:var(--t); background:var(--surface); display:flex; flex-direction:column; align-items:center;" 
+           onmouseover="this.style.borderColor='var(--ink)'; this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)';" 
+           onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'; this.style.boxShadow='none';"
+           onclick="window.location.href='/admin.html'">
+        <div style="font-size:48px; margin-bottom:20px; line-height:1;">🛡️</div>
+        <h3 style="font-size:18px; font-weight:700; color:var(--ink); margin-bottom:12px;">Admin Portal</h3>
+        <p style="font-size:13px; color:var(--ink-muted); line-height:1.6; margin:0;">Review applications, verify documents, and send student broadcasts.</p>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- ── AUTHENTICATION MODAL (Hidden by default now) ── -->
+<div class="auth-modal" id="authModal" style="display:none;">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="ulogo">D</div>
+      <div>
+        <h2 style="font-family:'Merriweather',serif;color:var(--ink);font-size:24px;font-weight:900;">DYD Portal</h2>
+        <small style="color:var(--ink-muted);font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;">Jammu University</small>
+      </div>
+    </div>
+    
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')" id="tabLogin">Sign In</div>
+      <div class="auth-tab" onclick="switchAuthTab('register')" id="tabRegister">Create Account</div>
+    </div>
+    
+    <p class="auth-desc" id="authDesc">Welcome back. Sign in to track your application status or continue a saved draft.</p>
+    
+    <div id="authErr" class="eb" style="margin-bottom:16px;"></div>
+
+    <!-- Login Form -->
+    <div id="formLogin">
+      <div class="f"><label>Email Address</label><input type="email" id="logEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')handleLogin()"></div>
+      <div class="f"><label>Password</label><input type="password" id="logPwd" placeholder="Enter your password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
+      <button class="btn bpri" style="width:100%;padding:14px;font-size:15px;margin-top:8px;" onclick="handleLogin()" id="btnLog">Sign In & Access Portal</button>
+    </div>
+
+    <!-- Register Form -->
+    <div id="formRegister" style="display:none;">
+      <div class="f"><label>Email Address</label><input type="email" id="regEmail" placeholder="your@email.com"></div>
+      <div class="f"><label>Create Password</label>
+        <input type="password" id="regPwd" placeholder="Create a strong password" oninput="pwS(this.value)">
+        <div class="pwdt"><div class="pwdf" id="pwf"></div></div><div class="pwdtx" id="pwt"></div>
+      </div>
+      <div class="f"><label>Confirm Password</label><input type="password" id="regPwd2" placeholder="Re-enter password"></div>
+      <button class="btn bred" style="width:100%;padding:14px;font-size:15px;margin-top:8px;" onclick="handleRegister()" id="btnReg">Create Account & Start App</button>
+      <div style="font-size:11px; color:var(--ink-muted); margin-top:12px; text-align:center;">Password: Min 8 chars, 1 uppercase, 1 number.</div>
+    </div>
+    
+    <!-- Back to Gateway Button -->
+    <div style="text-align:center; margin-top:24px;">
+      <a href="#" style="font-size:13px; color:var(--ink-muted); font-weight:600; text-decoration:none;" 
+         onclick="document.getElementById('authModal').style.display='none'; document.getElementById('gatewayModal').style.display='flex'; return false;">
+         ← Back to Selection
+      </a>
+    </div>
+  </div>
+</div>
+
+<aside class="sidebar">
+  <div class="stop">
+    <div class="umark">
+      <div class="ulogo">D</div>
+      <div class="uname">DYD<small>Design Your Degree · JU</small></div>
+    </div>
+    <div class="achip">Application <span id="sideId">—</span></div>
+  </div>
+  <nav class="snav">
+    <div class="nlbl">Application Form</div>
+    <div class="ni active" data-s="0"><div class="nnum">1</div><div class="ntxt">Personal Details</div></div>
+    <div class="ni" data-s="1"><div class="nnum">2</div><div class="ntxt">Address</div></div>
+    <div class="ni" data-s="2"><div class="nnum">3</div><div class="ntxt">Academic Details</div></div>
+    <div class="ni" data-s="3"><div class="nnum">4</div><div class="ntxt">Documents</div></div>
+    <div class="ni" data-s="4"><div class="nnum">5</div><div class="ntxt">Payment</div></div>
+    <div class="ni" data-s="5"><div class="nnum">6</div><div class="ntxt">Declaration</div></div>
+    
+    <div class="nlbl" style="margin-top: 24px;">Student Portal</div>
+    <div class="ni" data-s="6"><div class="nnum" style="border:none; font-size:16px; background:none;">🔍</div><div class="ntxt">Status & Results</div></div>
+  </nav>
+  <div class="sfoot" id="sfoot">
+    <div class="pr">Completion <span id="pp">0%</span></div>
+    <div class="pt"><div class="pf" id="pf" style="width:0%"></div></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="crumb"><span>Admissions 2026–27</span><span style="color:var(--border)">|</span><strong id="tt">Personal Details</strong></div>
+    <div class="tbr" id="tbrMain">
+      <span class="sst" id="ss"></span>
+      <button class="sbtn" onclick="saveD()">Save Draft</button>
+      <button class="sbtn" style="border:none; color:var(--ink-muted);" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- S0 PERSONAL (Split First/Last Name) -->
+  <div class="sp active" id="s0">
+    <div class="cont">
+      <div class="sh"><div><div class="ey">Step 01 of 06</div><h1 class="st">Personal <em>Details</em></h1><p class="sd">Provide your identification exactly as on your official government documents.</p></div><div class="sbadge"><div class="sbn">01</div><div class="sbo">of 06</div></div></div>
+      <div class="eb" id="e0"></div>
+      
+      <div class="form-card">
+        <div class="gl">Identity Verification</div>
+        <div class="fr">
+          <div class="f c6"><label><span class="rd">*</span> First Name</label><input type="text" id="fnFirst" placeholder="Official First Name"></div>
+          <div class="f c6"><label><span class="rd">*</span> Last Name</label><input type="text" id="fnLast" placeholder="Official Last Name"></div>
+        </div>
+        <div class="fr">
+          <div class="f c6"><label><span class="rd">*</span> Father's Name</label><input type="text" id="fat" placeholder="Father's full legal name"></div>
+          <div class="f c6"><label><span class="rd">*</span> Mother's Name</label><input type="text" id="mot" placeholder="Mother's full legal name"></div>
+        </div>
+        <div class="fr">
+          <div class="f c3"><label><span class="rd">*</span> Date of Birth</label><input type="date" id="dob"></div>
+          <div class="f c3"><label><span class="rd">*</span> Gender</label><div class="sw2"><select id="gen"><option value="" disabled selected>Select</option><option>Male</option><option>Female</option><option>Transgender</option><option>Prefer not to say</option></select></div></div>
+          <div class="f c3"><label><span class="rd">*</span> Nationality</label><div class="sw2"><select id="nat"><option value="" disabled selected>Select</option><option>Indian</option><option>NRI</option><option>Foreign National</option></select></div></div>
+          <div class="f c3"><label><span class="rd">*</span> Category</label><div class="sw2"><select id="cat"><option value="" disabled selected>Select</option><option>General</option><option>SC</option><option>ST</option><option>OBC</option><option>EWS</option></select></div></div>
+        </div>
+        <div class="fr">
+          <div class="f c4"><label><span class="rd">*</span> Aadhaar Number</label><input type="text" id="aad" placeholder="XXXX-XXXX-XXXX" maxlength="14" oninput="fmtA(this)"></div>
+          <div class="f c4"><label><span class="rd">*</span> Mobile Number</label><input type="tel" id="mob" placeholder="+91 98765 43210"></div>
+          <div class="f c4"><label><span class="rd">*</span> Email Address</label><input type="email" id="em" placeholder="your@email.com" readonly style="background:var(--paper); color:var(--ink-muted); cursor:not-allowed;"></div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="gl">Photograph Upload</div>
+        <div style="max-width:320px"><div class="f"><label><span class="rd">*</span> Passport Size Photo</label>
+          <div class="uz" id="pz"><input type="file" accept="image/*" onchange="upDoc(this,'photo','pz')">
+          <div class="uic">🖼</div><p><strong>Click to browse</strong> or drag file here</p><small>JPG/PNG · White background · Max 2MB</small><div class="ufn" id="pz-f"></div></div>
+        </div></div>
+      </div>
+    </div>
+    <div class="ff" id="ff0"><div class="fl2"><div class="si">Step <strong>1</strong> of 6</div></div><button class="btn bpri" onclick="sn(0)">Save & Continue →</button></div>
+  </div>
+
+  <!-- S1 ADDRESS -->
+  <div class="sp" id="s1">
+    <div class="cont">
+      <div class="sh"><div><div class="ey">Step 02 of 06</div><h1 class="st">Address <em>Details</em></h1><p class="sd">Permanent and correspondence addresses for official university communication.</p></div><div class="sbadge"><div class="sbn">02</div><div class="sbo">of 06</div></div></div>
+      <div class="form-card">
+        <div class="gl">Permanent Address</div>
+        <div class="fr"><div class="f c12"><label><span class="rd">*</span> Street / Locality</label><textarea id="pa" placeholder="House No., Street, Area, Landmark"></textarea></div></div>
+        <div class="fr">
+          <div class="f c4"><label><span class="rd">*</span> State</label><div class="sw2"><select id="ps"><option value="" disabled selected>Select</option></select></div></div>
+          <div class="f c4"><label><span class="rd">*</span> City</label><input type="text" id="pc" placeholder="City or District"></div>
+          <div class="f c4"><label><span class="rd">*</span> PIN Code</label><input type="text" id="pp2" maxlength="6" placeholder="6-digit PIN"></div>
+        </div>
+      </div>
+      <label class="cbr" style="margin-bottom:32px;"><input type="checkbox" id="same" onchange="syncA(this)"> <span>Correspondence address is same as permanent address</span></label>
+      <div class="form-card" id="cb">
+        <div class="gl">Correspondence Address</div>
+        <div class="fr"><div class="f c12"><label><span class="rd">*</span> Street / Locality</label><textarea id="ca" placeholder="House No., Street, Area, Landmark"></textarea></div></div>
+        <div class="fr">
+          <div class="f c4"><label><span class="rd">*</span> State</label><div class="sw2"><select id="cs"><option value="" disabled selected>Select</option></select></div></div>
+          <div class="f c4"><label><span class="rd">*</span> City</label><input type="text" id="cc" placeholder="City or District"></div>
+          <div class="f c4"><label><span class="rd">*</span> PIN Code</label><input type="text" id="cp" maxlength="6" placeholder="6-digit PIN"></div>
+        </div>
+      </div>
+    </div>
+    <div class="ff" id="ff1"><div class="fl2"><button class="btn bgh" onclick="gt(0)">← Back</button><div class="si">Step <strong>2</strong> of 6</div></div><button class="btn bpri" onclick="sn(1)">Save & Continue →</button></div>
+  </div>
+
+  <!-- S2 ACADEMIC -->
+  <div class="sp" id="s2">
+    <div class="cont">
+      <div class="sh"><div><div class="ey">Step 03 of 06</div><h1 class="st">Academic <em>Background</em></h1><p class="sd">Provide your verified educational qualifications from Class 10 onwards.</p></div><div class="sbadge"><div class="sbn">03</div><div class="sbo">of 06</div></div></div>
+      <div class="form-card">
+        <div class="gl">Class 10th (Matriculation)</div>
+        <div class="fr">
+          <div class="f c3"><label><span class="rd">*</span> Board Name</label><input type="text" id="b10" placeholder="e.g. CBSE"></div>
+          <div class="f c5"><label><span class="rd">*</span> School Name</label><input type="text" id="s10" placeholder="Full school name"></div>
+          <div class="f c2"><label><span class="rd">*</span> Year Passing</label><input type="number" id="y10" placeholder="2022" min="2000" max="2026"></div>
+          <div class="f c2"><label><span class="rd">*</span> % / CGPA</label><input type="text" id="p10" placeholder="e.g. 87.4%"></div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="gl">Class 12th (Higher Secondary)</div>
+        <div class="fr">
+          <div class="f c3"><label><span class="rd">*</span> Board Name</label><input type="text" id="b12" placeholder="e.g. CBSE"></div>
+          <div class="f c5"><label><span class="rd">*</span> School Name</label><input type="text" id="s12" placeholder="Full school name"></div>
+          <div class="f c4"><label><span class="rd">*</span> Stream</label><div class="sw2"><select id="str"><option value="" disabled selected>Select</option><option>Science (PCM)</option><option>Science (PCB)</option><option>Commerce</option><option>Arts / Humanities</option></select></div></div>
+        </div>
+        <div class="fr">
+          <div class="f c4"><label><span class="rd">*</span> Year of Passing</label><input type="number" id="y12" placeholder="e.g. 2024" min="2000" max="2026"></div>
+          <div class="f c4"><label><span class="rd">*</span> Percentage / CGPA</label><input type="text" id="p12" placeholder="e.g. 91.2%"></div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="gl">Entrance Examination <span style="font-size:11px;color:var(--ink-muted);background:var(--paper);padding:4px 8px;border-radius:4px;border:1px solid var(--border);margin-left:12px;">Optional</span></div>
+        <div class="fr">
+          <div class="f c4"><label>Exam</label><div class="sw2"><select id="exn"><option value="">Not Applicable</option><option>JEE Main</option><option>JEE Advanced</option><option>CUET</option><option>NEET</option><option>CAT</option><option>GATE</option><option>Other</option></select></div></div>
+          <div class="f c4"><label>Roll Number</label><input type="text" id="exr" placeholder="Exam roll no."></div>
+          <div class="f c4"><label>Score / Rank</label><input type="text" id="exs" placeholder="e.g. 95 percentile"></div>
+        </div>
+      </div>
+    </div>
+    <div class="ff" id="ff2"><div class="fl2"><button class="btn bgh" onclick="gt(1)">← Back</button><div class="si">Step <strong>3</strong> of 6</div></div><button class="btn bpri" onclick="sn(2)">Save & Continue →</button></div>
+  </div>
+
+  <!-- S3 DOCUMENTS -->
+  <div class="sp" id="s3">
+    <div class="cont">
+      <div class="sh"><div><div class="ey">Step 04 of 06</div><h1 class="st">Document <em>Upload</em></h1><p class="sd">Upload clear, legible copies of your certificates. PDF, JPG, or PNG formats supported (Max 5MB per file).</p></div><div class="sbadge"><div class="sbn">04</div><div class="sbo">of 06</div></div></div>
+      <div class="dg" id="dg"></div>
+    </div>
+    <div class="ff" id="ff3"><div class="fl2"><button class="btn bgh" onclick="gt(2)">← Back</button><div class="si">Step <strong>4</strong> of 6</div></div><button class="btn bpri" onclick="gt(4)">Save & Continue →</button></div>
+  </div>
+
+  <!-- S4 PAYMENT -->
+  <div class="sp" id="s4">
+    <div class="cont">
+      <div class="sh"><div><div class="ey">Step 05 of 06</div><h1 class="st">Payment <em>Details</em></h1><p class="sd">Securely pay your application fee to proceed to the final step.</p></div><div class="sbadge"><div class="sbn">05</div><div class="sbo">of 06</div></div></div>
+      <div class="fh"><div><div class="fa"><sup>₹</sup>1,500</div><div class="fd">Non-refundable · Academic Year 2026–27</div></div><div class="fb"><div class="fl">Processing<strong>₹1,200</strong></div><div class="fl">Portal<strong>₹200</strong></div><div class="fl">GST<strong>₹100</strong></div></div></div>
+      
+      <div class="form-card" id="paymentCard">
+        <div class="gl">Online Payment</div>
+        <div class="nb" style="margin-bottom:24px;"><strong>Note:</strong> You will be securely redirected to Razorpay to complete your ₹1,500 transaction via UPI, Card, or NetBanking.</div>
+        
+        <div id="payStatusBox" style="display:none; padding:20px; background:var(--green-pale); border:1px solid rgba(5,150,105,0.2); border-radius:var(--r-lg); color:var(--green); text-align:center; margin-bottom:20px;">
+           <div style="font-size:24px; margin-bottom:8px;">✅</div>
+           <div style="font-size:16px; font-weight:700;">Payment Successful!</div>
+           <div style="font-size:13px; margin-top:4px;">Transaction ID: <strong id="payTxnDisplay"></strong></div>
+        </div>
+
+        <button class="btn bpri" style="width:100%; padding:16px; font-size:16px;" id="btnRazorpay" onclick="startPayment()">💳 Pay ₹1,500 Now</button>
+      </div>
+    </div>
+    <div class="ff" id="ff4"><div class="fl2"><button class="btn bgh" onclick="gt(3)">← Back</button><div class="si">Step <strong>5</strong> of 6</div></div><button class="btn bpri" onclick="sn(4)">Save & Continue →</button></div>
+  </div>
+
+  <!-- S5 DECLARATION (FINAL STEP) -->
+  <div class="sp" id="s5">
+    <div class="cont">
+      <div class="sh"><div><div class="ey">Step 06 of 06</div><h1 class="st">Declaration &amp; <em>Signature</em></h1><p class="sd">Please read the terms carefully and confirm your application with a digital signature.</p></div><div class="sbadge"><div class="sbn">06</div><div class="sbo">of 06</div></div></div>
+      <div class="ds">I, <strong id="dn">[Applicant Name]</strong>, hereby solemnly declare that:<br><br>1. All information in this application is true, complete, and correct to the best of my knowledge.<br><br>2. No material information has been suppressed or misrepresented.<br><br>3. If any information is found false, my admission to DYD (Design Your Degree) may be cancelled and I may face disciplinary action per Jammu University rules.<br><br>4. I have read and agree to abide by all rules of DYD and Jammu University.<br><br>5. I confirm I meet all eligibility criteria and all submitted documents are genuine.<br><br>6. The application fee is non-refundable under any circumstances.</div>
+      <label class="cbr"><input type="checkbox" id="dc"><span>I confirm all information is true and correct. I accept DYD's terms and conditions.</span></label>
+      <div class="form-card" style="margin-top:32px;">
+        <div class="fr" style="margin-bottom:0;">
+          <div class="f c6"><label><span class="rd">*</span> Applicant Signature</label>
+            <div class="uz" id="sz"><input type="file" accept="image/*" onchange="upDoc(this,'signature','sz')">
+            <div class="uic">✍️</div><p><strong>Upload signature</strong></p><small>White background · JPG/PNG · Max 1MB</small><div class="ufn" id="sz-f"></div></div>
+          </div>
+          <div class="f c4"><label><span class="rd">*</span> Date</label><input type="date" id="dd" style="background:var(--paper); pointer-events:none; border-color:var(--border);"></div>
+        </div>
+      </div>
+      <div class="eb" id="e5"></div>
+    </div>
+    <div class="ff" id="ff5"><div class="fl2"><button class="btn bgh" onclick="gt(4)">← Back</button><div class="si">Final step</div></div><button class="btn bred" id="subFinal" onclick="submitFinal()">Submit Final Application ✦</button></div>
+  </div>
+
+  <!-- S6 TRACKER / RESULTS DASHBOARD -->
+  <div class="sp" id="s6">
+    <div class="cont" style="max-width:1100px;">
+      <div class="sh" style="margin-bottom:40px; border-bottom:1px solid var(--border); padding-bottom:24px;">
+        <div>
+          <div class="ey">Student Portal</div>
+          <h1 class="st">Status &amp; <em>Results</em></h1>
+          <p class="sd">Track your multi-stage admission progress, download hall tickets, and view final interview results.</p>
+        </div>
+        <div style="text-align:right;">
+          <div class="sbadge" style="width:auto; padding:0 24px; background:var(--primary); border-color:var(--primary); margin-left:auto;"><div class="sbn" style="color:#fff;" id="trRBadge">Pending</div></div>
+          <div style="font-size:12px; font-weight:600; color:var(--ink-muted); margin-top:8px;">App ID: <span id="trAppIdLbl" style="color:var(--ink)">—</span></div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <!-- Col 1: Documents -->
+        <div>
+          <div class="dash-col-title">Official Documents</div>
+          
+          <div class="doc-card" id="docHall">
+            <div class="doc-status" id="docHallBadge" style="background:var(--warning-pale); color:var(--warning);">Pending</div>
+            <div class="doc-icon">🎟️</div>
+            <div class="doc-title">Exam Hall Ticket</div>
+            <div class="doc-sub">Required for written test entry.</div>
+            <button class="btn bpri" style="width:100%; padding:10px; font-size:12px;" id="btnHall" disabled>Not Available</button>
+          </div>
+
+          <div class="doc-card" id="docId">
+            <div class="doc-status" id="docIdBadge" style="background:var(--warning-pale); color:var(--warning);">Pending</div>
+            <div class="doc-icon">🪪</div>
+            <div class="doc-title">Student ID Card</div>
+            <div class="doc-sub">Issued after final fee payment.</div>
+            <button class="btn bpri" style="width:100%; padding:10px; font-size:12px;" id="btnId" disabled>Not Available</button>
+          </div>
+        </div>
+
+        <!-- Col 2: Evaluation Stages -->
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <div class="dash-col-title" style="margin:0;">Evaluation Stages</div>
+            <div style="font-size:13px; font-weight:600; color:var(--ink-soft); background:var(--surface); border:1px solid var(--border); padding:6px 12px; border-radius:8px;">
+              Assigned Roll No: <span style="color:var(--primary);" id="trRollNo">—</span>
+            </div>
+          </div>
+
+          <div class="stage-card" id="stage1">
+            <div style="display:flex; align-items:center;">
+              <div class="stage-num">1</div>
+              <div class="stage-info">
+                <div class="stage-title">Written Examination</div>
+                <div class="stage-date" id="stg1Date">Pending Schedule</div>
+              </div>
+            </div>
+            <div class="stage-result">
+              <div class="sr-status" id="stg1Status">Awaiting</div>
+              <div class="sr-score" id="stg1Score">—</div>
+            </div>
+          </div>
+
+          <div class="stage-card" id="stage2">
+            <div style="display:flex; align-items:center;">
+              <div class="stage-num">2</div>
+              <div class="stage-info">
+                <div class="stage-title">Group Discussion (GD)</div>
+                <div class="stage-date" id="stg2Date">Pending Schedule</div>
+              </div>
+            </div>
+            <div class="stage-result">
+              <div class="sr-status" id="stg2Status">Awaiting</div>
+              <div class="sr-score" id="stg2Score">—</div>
+            </div>
+          </div>
+
+          <div class="stage-card" id="stage3">
+            <div style="display:flex; align-items:center;">
+              <div class="stage-num">3</div>
+              <div class="stage-info">
+                <div class="stage-title">Personal Interview (PI)</div>
+                <div class="stage-date" id="stg3Date">Pending Schedule</div>
+              </div>
+            </div>
+            <div class="stage-result">
+              <div class="sr-status" id="stg3Status">Awaiting</div>
+              <div class="sr-score" id="stg3Score">—</div>
+            </div>
+          </div>
+          
+          <div style="text-align:right; margin-top:24px;">
+            <button class="btn bgh" onclick="refreshStatus()">↻ Refresh Results</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- INBOX SECTION -->
+      <div style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 32px;">
+        <div class="dash-col-title">Official Communications & Inbox</div>
+        <div id="studentNotifs">
+           <div style="color:var(--ink-muted); font-size:14px; padding:20px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);">Loading messages...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="sp" id="sx">
+    <div class="sw2-success">
+      <div class="sr">✓</div>
+      <h2>Application Submitted!</h2>
+      <p>Your application has been successfully received by the DYD admissions office.</p>
+      <div class="sid" id="sid">—</div>
+      <p style="font-size:15px;color:var(--ink-muted);max-width:420px;margin:0 auto">Review processing takes <strong>3–5 working days</strong>. You can check your portal tracker anytime for updates on Hall Tickets and Results.</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:32px">
+        <button class="btn bpri" onclick="gt(6)">Go to Student Portal →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="td s" id="tdot"></div><span id="ttxt"></span></div>
+
+<script>
+const TITLES=['Personal Details','Address','Academic Details','Documents','Payment','Declaration','Status & Results'];
+const STATES=['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Jammu & Kashmir','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Delhi'];
+const DDOCS=[{k:'marksheet10',i:'📋',l:'10th Marksheet',s:'Required'},{k:'marksheet12',i:'📋',l:'12th Marksheet',s:'Required'},{k:'tc',i:'📁',l:'Transfer Certificate',s:'Required'},{k:'migration',i:'📁',l:'Migration Cert.',s:'Optional'},{k:'character',i:'📜',l:'Character Certificate',s:'Required'},{k:'caste',i:'📄',l:'Caste Certificate',s:'If applicable'},{k:'income',i:'💰',l:'Income Certificate',s:'If applicable'},{k:'idproof',i:'🪪',l:'ID Proof (Aadhaar/PAN)',s:'Required'}];
+let appId=null, tok=null, cur=0, isPaid=false;
+
+async function init(){
+  ['ps','cs'].forEach(id=>{const el=document.getElementById(id);STATES.forEach(s=>{const o=document.createElement('option');o.textContent=s;el.appendChild(o);});});
+  buildDocs();
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('dd').value=today;
+  
+  document.querySelectorAll('.ni[data-s]').forEach(n=>n.addEventListener('click',()=>gt(+n.dataset.s)));
+  
+  const savedTok = localStorage.getItem('ncuToken');
+  const savedAppId = localStorage.getItem('ncuAppId');
+  if(savedTok && savedAppId) { 
+    tok = savedTok; appId = savedAppId;
+    document.getElementById('sideId').textContent = appId;
+    document.getElementById('gatewayModal').style.display = 'none';
+    document.getElementById('authModal').style.display = 'none';
+    loadStatusSilent();
+  }
+}
+
+// ── AUTH GATEWAY LOGIC ──
+function switchAuthTab(tab) {
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabRegister').classList.toggle('active', tab==='register');
+  document.getElementById('formLogin').style.display = tab==='login' ? 'block' : 'none';
+  document.getElementById('formRegister').style.display = tab==='register' ? 'block' : 'none';
+  document.getElementById('authDesc').textContent = tab==='login' ? 'Welcome back. Sign in to track your application status or continue a saved draft.' : 'Create a secure account to begin your DYD application process.';
+  hideE('authErr');
+}
+
+async function handleRegister() {
+  const email = gv('regEmail'), pwd = gv('regPwd'), pwd2 = gv('regPwd2');
+  if(!email) return showE('authErr', ['Email is required']);
+  if(pwd !== pwd2) return showE('authErr', ['Passwords do not match']);
+  if(pwd.length < 8) return showE('authErr', ['Password must be at least 8 characters']);
+  
+  const btn = document.getElementById('btnReg');
+  btn.innerHTML = '<span class="spin"></span> Creating Account...'; btn.disabled = true;
+  
+  try {
+    const r1 = await fetch('/api/applications/start', {method:'POST', headers:{'Content-Type':'application/json'}});
+    const d1 = await r1.json();
+    if(!d1.appId) throw new Error('Could not initialize application on server');
+    appId = d1.appId;
+    
+    const r2 = await fetch('/api/auth/register', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, password:pwd, appId})});
+    const d2 = await r2.json();
+    if(!d2.success) {
+      if(r2.status === 409) throw new Error('Email already registered. Please sign in.');
+      throw new Error(d2.error || 'Registration failed');
+    }
+    
+    tok = d2.token;
+    localStorage.setItem('ncuToken', tok);
+    localStorage.setItem('ncuAppId', appId);
+    
+    document.getElementById('em').value = email; 
+    document.getElementById('sideId').textContent = appId;
+    showT('s', 'Account created! Let\'s begin your application.');
+    
+    document.getElementById('gatewayModal').style.display = 'none';
+    document.getElementById('authModal').style.opacity = '0';
+    setTimeout(() => document.getElementById('authModal').style.display = 'none', 300);
+  } catch(e) { showE('authErr', [e.message]); }
+  btn.innerHTML = 'Create Account & Start App'; btn.disabled = false;
+}
+
+async function handleLogin() {
+  const email = gv('logEmail'), pwd = gv('logPwd');
+  if(!email || !pwd) return showE('authErr', ['Enter email and password']);
+  
+  const btn = document.getElementById('btnLog');
+  btn.innerHTML = '<span class="spin"></span> Signing in...'; btn.disabled = true;
+  
+  try {
+    const r = await fetch('/api/auth/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, password:pwd})});
+    const d = await r.json();
+    if(!d.success) throw new Error(d.error || 'Invalid credentials');
+    
+    tok = d.token; appId = d.appId;
+    localStorage.setItem('ncuToken', tok);
+    localStorage.setItem('ncuAppId', appId);
+    
+    document.getElementById('em').value = email;
+    document.getElementById('sideId').textContent = appId;
+    showT('s', 'Logged in successfully');
+    
+    document.getElementById('gatewayModal').style.display = 'none';
+    document.getElementById('authModal').style.opacity = '0';
+    setTimeout(() => document.getElementById('authModal').style.display = 'none', 300);
+    
+    loadStatusSilent(); 
+  } catch(e) { showE('authErr', [e.message]); }
+  btn.innerHTML = 'Sign In & Access Portal'; btn.disabled = false;
+}
+
+function logout() {
+  localStorage.removeItem('ncuToken'); localStorage.removeItem('ncuAppId'); location.reload();
+}
+
+function buildDocs(){
+  document.getElementById('dg').innerHTML=DDOCS.map((d,i)=>`<div class="dc" id="dc${i}">
+    <div class="dctop">${d.i}</div>
+    <div class="dcb"><div class="dclbl">${d.l}</div><div class="dcsub">${d.s}</div>
+    <div class="dcst">✓ Uploaded</div>
+    <div class="dcin"><div class="dcbtn">Choose File</div>
+    <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="upDoc(this,'${d.k}','dc${i}')"></div></div></div>`).join('');
+}
+
+function gt(n){
+  document.querySelectorAll('.sp').forEach(s=>s.classList.remove('active'));
+  const p=document.getElementById(n===99?'sx':'s'+n);if(p)p.classList.add('active');
+  document.querySelectorAll('.ni').forEach((item,i)=>{item.classList.remove('active','done');if(i<n)item.classList.add('done');else if(i===n)item.classList.add('active');});
+  
+  if(n<=6) document.getElementById('tt').textContent=TITLES[n]||'';
+  
+  if(n === 6 || n === 99) { 
+    document.getElementById('sfoot').style.display = 'none';
+    document.getElementById('tbrMain').style.display = 'none';
+    if(n===6) refreshStatus(); 
+  } else {
+    document.getElementById('sfoot').style.display = 'block';
+    document.getElementById('tbrMain').style.display = 'flex';
+    const pct=Math.round((n/5)*100); 
+    document.getElementById('pp').textContent=pct+'%';document.getElementById('pf').style.width=pct+'%';
+  }
+  cur=n;window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function sn(step){const ok=await save(step);if(ok)gt(step+1);}
+
+async function save(step){
+  if(!appId){showT('e','No application ID');return false;}
+  const body=buildBody(step);if(!body)return false;
+  try{
+    setS(true);
+    const r=await fetch('/api/applications/'+appId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();if(!d.success)throw new Error(d.error);
+    setS(false,'✓ Saved');return true;
+  }catch(e){setS(false);showT('e','Save failed: '+e.message);return false;}
+}
+
+function buildBody(step){
+  const errs=[];
+  if(step===0){
+    const fnF=gv('fnFirst'), fnL=gv('fnLast'), mob=gv('mob'), em=gv('em');
+    if(!fnF)errs.push('First Name required');
+    if(!mob)errs.push('Mobile required');
+    if(errs.length){showE('e0',errs);return null;}hideE('e0');
+    const fullName = `${fnF} ${fnL}`.trim();
+    return{personal:{fullName:fullName,fatherName:gv('fat'),motherName:gv('mot'),dob:gv('dob'),gender:gv('gen'),nationality:gv('nat'),category:gv('cat'),aadhaar:gv('aad'),mobile:mob,email:em},step:1};
+  }
+  if(step===1)return{address:{permanent:gv('pa'),permState:gv('ps'),permCity:gv('pc'),permPin:gv('pp2'),correspondence:gv('ca'),corrState:gv('cs'),corrCity:gv('cc'),corrPin:gv('cp')},step:2};
+  if(step===2)return{academic:{board10:gv('b10'),school10:gv('s10'),year10:gv('y10'),pct10:gv('p10'),board12:gv('b12'),school12:gv('s12'),stream:gv('str'),year12:gv('y12'),pct12:gv('p12'),examName:gv('exn'),examRoll:gv('exr'),examScore:gv('exs')},step:3};
+  
+  if(step===4){
+    if(!isPaid){showT('w','Please complete the online payment first');return null;}
+    return{step:5};
+  }
+  return null;
+}
+
+async function saveD(){await save(cur);showT('s','Draft saved');}
+
+async function upDoc(input,docType,zoneId){
+  if(!input.files||!input.files[0])return;
+  if(!appId){showT('e','Start application first');return;}
+  const file=input.files[0],zone=document.getElementById(zoneId),fn=document.getElementById(zoneId+'-f');
+  zone&&zone.classList.add('uploading');
+  const fd=new FormData();fd.append('file',file);fd.append('docType',docType);
+  try{
+    const r=await fetch('/api/applications/'+appId+'/upload', {
+      method: 'POST', body: fd, headers: { 'Authorization': 'Bearer ' + tok }
+    });
+    const d=await r.json();if(!d.success)throw new Error(d.error);
+    if(zone){zone.classList.remove('uploading');zone.classList.add('done');}
+    if(fn)fn.textContent='✓ '+file.name;
+    const card=document.getElementById(zoneId);if(card&&card.classList.contains('dc'))card.classList.add('done');
+    showT('s','Uploaded: '+file.name);
+  }catch(e){if(zone)zone.classList.remove('uploading');showT('e','Upload failed: '+e.message);}
+}
+
+// ── RAZORPAY INTEGRATION ──
+async function startPayment() {
+  if(!appId){showT('e','No application ID found');return;}
+  const btn = document.getElementById('btnRazorpay');
+  btn.innerHTML = '<span class="spin"></span> Initializing Secure Gateway...'; btn.disabled = true;
+  
+  try {
+    const r = await fetch('/api/applications/'+appId+'/create-payment', {
+      method: 'POST', headers: { 'Authorization': 'Bearer ' + tok }
+    });
+    const d = await r.json();
+    if(!d.success) throw new Error(d.error);
+
+    const options = {
+      "key": "rzp_test_SlIhRRhAA5EAa2", 
+      "amount": d.amount,
+      "currency": "INR",
+      "name": "DYD Admissions",
+      "description": "Application Fee 2026-27",
+      "order_id": d.orderId,
+      "handler": async function (response) {
+        showT('s', 'Verifying payment securely...');
+        btn.innerHTML = '<span class="spin"></span> Verifying...';
+        
+        const vr = await fetch('/api/applications/'+appId+'/verify-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+          body: JSON.stringify({
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature
+          })
+        });
+        const vd = await vr.json();
+        if(vd.success) {
+          isPaid = true;
+          btn.style.display = 'none';
+          document.getElementById('payStatusBox').style.display = 'block';
+          document.getElementById('payTxnDisplay').textContent = response.razorpay_payment_id;
+          showT('s', 'Payment successful and verified!');
+        } else {
+          showT('e', 'Payment verification failed');
+          btn.innerHTML = '💳 Pay ₹1,500 Now'; btn.disabled = false;
+        }
+      },
+      "prefill": {
+        "name": gv('fnFirst') + " " + gv('fnLast'),
+        "email": gv('em'),
+        "contact": gv('mob')
+      },
+      "theme": { "color": "#A31F34" },
+      "modal": {
+        "ondismiss": function() {
+          if(!isPaid) { btn.innerHTML = '💳 Pay ₹1,500 Now'; btn.disabled = false; }
+        }
+      }
+    };
+    const rzp1 = new Razorpay(options);
+    rzp1.open();
+  } catch(e) {
+    showT('e', e.message);
+    btn.innerHTML = '💳 Pay ₹1,500 Now'; btn.disabled = false;
+  }
+}
+
+// ── FINAL SUBMISSION ──
+async function submitFinal(){
+  if(!appId){showT('e','No application ID');return;}
+  if(!document.getElementById('dc').checked){showE('e5',['Accept declaration first']);return;}
+  hideE('e5');
+  
+  const btn=document.getElementById('subFinal');
+  btn.innerHTML='<span class="spin"></span> Submitting…';btn.disabled=true;
+  
+  try{
+    await fetch('/api/applications/'+appId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({declaration:{accepted:true,date:gv('dd')},step:6})});
+    
+    const sr=await fetch('/api/applications/'+appId+'/submit',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok}});
+    const sd=await sr.json();if(!sd.success)throw new Error(sd.error);
+    
+    gt(99); 
+    document.getElementById('sid').textContent=appId;
+  }catch(e){
+    btn.innerHTML='Submit Final Application ✦';btn.disabled=false;
+    showE('e5',[e.message]); showT('e',e.message);
+  }
+}
+
+// ── STATUS DASHBOARD (TRACKER) ──
+async function loadStatusSilent() {
+  if(!appId) return;
+  try {
+    const r = await fetch('/api/status/' + appId);
+    const d = await r.json();
+    if (d.success && d.status && d.status !== 'Draft') {
+      gt(6); 
+    } else if (d.success && d.status === 'Draft') {
+      const appReq = await fetch('/api/applications/'+appId, { headers:{'Authorization':'Bearer '+tok} });
+      const appData = await appReq.json();
+      if(appData.application && appData.application.payment && appData.application.payment.status === 'Success') {
+        isPaid = true;
+        document.getElementById('btnRazorpay').style.display = 'none';
+        document.getElementById('payStatusBox').style.display = 'block';
+        document.getElementById('payTxnDisplay').textContent = appData.application.payment.txnId;
+      }
+    }
+  } catch(e) {}
+}
+
+async function refreshStatus() {
+  if(!appId) return;
+  try {
+    const r = await fetch('/api/status/' + appId);
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error);
+
+    const nr = await fetch('/api/student/notifications/' + appId, {
+      headers: { 'Authorization': 'Bearer ' + tok }
+    });
+    const nd = await nr.json();
+
+    renderDashboard(d, nd.notifications || []);
+  } catch(e) { showT('e', 'Could not load status: ' + e.message); }
+}
+
+function renderDashboard(d, notifs) {
+  document.getElementById('trAppIdLbl').textContent = d.appId;
+  
+  const badge = document.getElementById('trRBadge');
+  badge.textContent = d.status;
+  badge.style.background = {Draft:'var(--paper)',Pending:'var(--warning)',Approved:'var(--green)',Rejected:'var(--primary)','On Hold':'var(--sky)'}[d.status] || 'var(--paper)';
+  document.getElementById('trRollNo').textContent = d.admissionNo || 'Not Assigned';
+
+  const isApproved = d.status === 'Approved';
+  const isRejected = d.status === 'Rejected';
+  
+  updateStageUI('stage1', 'stg1Status', 'stg1Score', 'stg1Date', 
+    d.status !== 'Draft' ? 'cleared' : 'pending', 
+    d.status !== 'Draft' ? 'Cleared' : 'Awaiting', 
+    d.status !== 'Draft' ? 'Score: 84/100' : '—', 
+    d.submittedAt ? 'System Verified' : 'Pending Schedule');
+    
+  updateStageUI('stage2', 'stg2Status', 'stg2Score', 'stg2Date', 
+    isApproved || isRejected ? 'cleared' : (d.status==='Pending'?'active':'pending'), 
+    isApproved || isRejected ? 'Evaluated' : (d.status==='Pending'?'In Progress':'Awaiting'), 
+    isApproved ? 'Grade: A' : '—', 
+    d.submittedAt ? 'Pending Schedule' : 'Pending Schedule');
+
+  updateStageUI('stage3', 'stg3Status', 'stg3Score', 'stg3Date', 
+    isApproved ? 'cleared' : isRejected ? 'active' : 'pending', 
+    isApproved ? 'Selected' : isRejected ? 'Not Selected' : 'Awaiting', 
+    isApproved ? 'Cleared PI' : '—', 
+    d.submittedAt ? 'Pending Schedule' : 'Pending Schedule');
+
+  let hallTicketUrl = null;
+  let idCardUrl = null;
+
+  const notifHtml = notifs.map(n => {
+      if (n.type === 'hall-ticket' && n.attachments && n.attachments.length > 0) {
+          hallTicketUrl = '/api/notif-files/' + n.attachments[0].filename;
+      }
+      if (n.type === 'id-card' && n.attachments && n.attachments.length > 0) {
+          idCardUrl = '/api/notif-files/' + n.attachments[0].filename;
+      }
+
+      return `<div class="stage-card" style="align-items:flex-start; flex-direction:column; margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:8px;">
+              <strong style="color:var(--ink);">${n.title}</strong>
+              <span style="font-size:11px; color:var(--ink-muted); font-weight:600;">${new Date(n.sentAt).toLocaleDateString()}</span>
+          </div>
+          <div style="font-size:13px; color:var(--ink-soft); line-height:1.6; white-space:pre-wrap; margin-bottom:12px;">${n.body}</div>
+          ${n.attachments?.length ? `<div style="display:flex; gap:8px; flex-wrap:wrap;">
+              ${n.attachments.map(a => `<a href="/api/notif-files/${a.filename}" download="${a.originalName}" class="btn bgh" style="padding:6px 12px; font-size:11px;">📎 Download ${a.originalName}</a>`).join('')}
+          </div>` : ''}
+      </div>`;
+  }).join('');
+
+  const notifContainer = document.getElementById('studentNotifs');
+  if(notifContainer) {
+      notifContainer.innerHTML = notifHtml || `<div style="color:var(--ink-muted); font-size:14px; padding:20px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);">No messages from administration yet.</div>`;
+  }
+
+  const btnHall = document.getElementById('btnHall');
+  if (hallTicketUrl) {
+      document.getElementById('docHallBadge').textContent = 'Available';
+      document.getElementById('docHallBadge').style.background = 'var(--green-pale)';
+      document.getElementById('docHallBadge').style.color = 'var(--green)';
+      btnHall.disabled = false;
+      btnHall.textContent = 'Download PDF';
+      btnHall.onclick = () => window.open(hallTicketUrl, '_blank');
+  } else {
+      document.getElementById('docHallBadge').textContent = 'Pending';
+      document.getElementById('docHallBadge').style.background = 'var(--warning-pale)';
+      document.getElementById('docHallBadge').style.color = 'var(--warning)';
+      btnHall.disabled = true;
+      btnHall.textContent = 'Not Available';
+      btnHall.onclick = null;
+  }
+
+  const btnId = document.getElementById('btnId');
+  if (idCardUrl) {
+      document.getElementById('docIdBadge').textContent = 'Available';
+      document.getElementById('docIdBadge').style.background = 'var(--green-pale)';
+      document.getElementById('docIdBadge').style.color = 'var(--green)';
+      btnId.disabled = false;
+      btnId.textContent = 'View ID Card';
+      btnId.onclick = () => window.open(idCardUrl, '_blank');
+  } else {
+      document.getElementById('docIdBadge').textContent = 'Pending';
+      document.getElementById('docIdBadge').style.background = 'var(--warning-pale)';
+      document.getElementById('docIdBadge').style.color = 'var(--warning)';
+      btnId.disabled = true;
+      btnId.textContent = 'Not Available';
+      btnId.onclick = null;
+  }
+}
+
+function updateStageUI(cardId, statusId, scoreId, dateId, stateCls, statusTxt, scoreTxt, dateTxt) {
+  const card = document.getElementById(cardId);
+  card.className = 'stage-card ' + stateCls;
+  document.getElementById(statusId).textContent = statusTxt;
+  document.getElementById(scoreId).textContent = scoreTxt;
+  document.getElementById(dateId).textContent = dateTxt;
+}
+
+// ── UTILS ──
+function gv(id){return(document.getElementById(id)||{}).value||'';}
+function fmtA(inp){let v=inp.value.replace(/\D/g,'').slice(0,12);inp.value=v.replace(/(\d{4})(\d{0,4})(\d{0,4})/,(_,a,b,c)=>[a,b,c].filter(Boolean).join('-'));}
+function setDN(v){document.getElementById('dn').textContent=v.trim()||'[Applicant Name]';}
+function syncA(cb){const box=document.getElementById('cb');if(cb.checked){[['pa','ca'],['ps','cs'],['pc','cc'],['pp2','cp']].forEach(([s,d])=>{const se=document.getElementById(s),de=document.getElementById(d);if(se&&de)de.value=se.value;});box.style.opacity='.5';box.style.pointerEvents='none';}else{box.style.opacity='';box.style.pointerEvents='';}}
+function pwS(pwd){let sc=0;if(pwd.length>=8)sc++;if(/[A-Z]/.test(pwd))sc++;if(/[0-9]/.test(pwd))sc++;if(/[^A-Za-z0-9]/.test(pwd))sc++;const f=document.getElementById('pwf'),t=document.getElementById('pwt');const cols=['#A31F34','#D97706','#059669','#059669'];const labs=['Weak','Fair','Good','Strong'];f.style.width=(sc*25)+'%';f.style.background=cols[sc-1]||'#E2E8F0';t.textContent=sc>0?labs[sc-1]:'';t.style.color=cols[sc-1]||'';}
+function showT(type,msg){const el=document.getElementById('toast');document.getElementById('tdot').className='td '+type;document.getElementById('ttxt').textContent=msg;el.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>el.classList.remove('show'),3200);}
+function showE(id,msgs){const el=document.getElementById(id);if(!el)return;el.textContent=msgs.join(' • ');el.classList.add('show');}
+function hideE(id){const el=document.getElementById(id);if(el){el.classList.remove('show');el.textContent='';}}
+function setS(saving,msg){const st=document.getElementById('ss');st.textContent=saving?'Saving…':msg||'';st.style.color=saving?'var(--ink-faint)':'var(--green)';if(!saving&&msg)setTimeout(()=>{if(st.textContent===msg)st.textContent='';},3000);}
+
+init();
+</script>
+</body>
+</html>
