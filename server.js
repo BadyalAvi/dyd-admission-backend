@@ -92,7 +92,9 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'frontend', 'public')));
+
+// UPDATED: Serve static files from root directory to match GitHub structure[cite: 1, 12]
+app.use(express.static(__dirname));
 
 app.use('/uploads', express.static(UPLOADS_DIR));
 app.use('/api/notif-files', express.static(NOTIF_DIR));
@@ -325,136 +327,19 @@ app.get('/api/student/notifications/:appId', authMiddleware, async (req, res) =>
     } catch(e) { fail(res, e.message, 500); }
 });
 
-// ════════ ADMIN ROUTES ══════════════════════════════════
-app.get('/api/admin/applications', adminMiddleware, async (req, res) => {
-  try {
-    const page  = Math.max(1, parseInt(req.query.page)||1);
-    const limit = Math.min(50, parseInt(req.query.limit)||15);
-    const status = req.query.status || 'All';
-    const search = (req.query.search||'').toLowerCase().trim();
-
-    let query = {};
-    if (status !== 'All') query.status = status;
-    if (search) {
-        query.$or = [{ appId: { $regex: search, $options: 'i' } }, { 'personal.fullName': { $regex: search, $options: 'i' } }, { 'personal.email': { $regex: search, $options: 'i' } }, { admissionNo: { $regex: search, $options: 'i' } }];
-    }
-
-    const total = await Application.countDocuments(query);
-    const apps = await Application.find(query).sort({ updatedAt: -1 }).skip((page - 1) * limit).limit(limit);
-    const formattedApps = apps.map(a => ({ appId:a.appId, status:a.status, fullName:a.personal?.fullName||'—', email:a.personal?.email||'—', category:a.personal?.category||'—', stream:a.academic?.stream||'—', updatedAt:a.updatedAt }));
-    
-    const all = await Application.find();
-    const stats = { total:all.length, draft:all.filter(a=>a.status==='Draft').length, pending:all.filter(a=>a.status==='Pending').length, approved:all.filter(a=>a.status==='Approved').length, rejected:all.filter(a=>a.status==='Rejected').length, onHold:all.filter(a=>a.status==='On Hold').length };
-
-    ok(res, { applications:formattedApps, total, page, stats });
-  } catch(e) { fail(res, e.message, 500); }
-});
-
-app.get('/api/admin/applications/:appId', adminMiddleware, async (req, res) => {
-    try {
-      const appRecord = await Application.findOne({ appId:req.params.appId });
-      if (!appRecord) return fail(res, 'Application not found', 404);
-      ok(res, { application:safeApp(appRecord) });
-    } catch(e) { fail(res, e.message, 500); }
-});
-  
-app.patch('/api/admin/applications/:appId', adminMiddleware,
-    [body('status').optional().isIn(['Draft','Pending','Approved','Rejected','On Hold']), body('admissionNo').optional().isString().trim(), body('adminRemarks').optional().isString()],
-    async (req, res) => {
-      try {
-        if (!valid(req, res)) return;
-        const { appId } = req.params;
-        const updates = { updatedAt:now() };
-        ['status','adminRemarks','admissionNo'].forEach(k => { if (req.body[k] !== undefined) updates[k] = req.body[k]; });
-        
-        const updated = await Application.findOneAndUpdate({ appId }, updates, {new: true});
-        if (!updated) return fail(res, 'Application not found', 404);
-        ok(res, { appId, ...updates });
-      } catch(e) { fail(res, e.message, 500); }
-});
-
-app.delete('/api/admin/applications/:appId', adminMiddleware, async (req, res) => {
-    try {
-      const { appId } = req.params;
-      const appRecord = await Application.findOne({ appId });
-      if (!appRecord) return fail(res, 'Application not found', 404);
-      await Application.deleteOne({ appId });
-      await Student.deleteOne({ appId });
-      ok(res, { message: 'Application deleted' });
-    } catch(e) { fail(res, e.message, 500); }
-});
-
-app.post('/api/admin/notifications', adminMiddleware, notifUpload.array('attachments', 5), async (req, res) => {
-    try {
-      const { title, body: msgBody, type, targetStatus, targetCategory, priority } = req.body;
-      const id = 'NOTIF-' + Date.now();
-
-      let query = {};
-      if (targetStatus && targetStatus !== 'All') query.status = targetStatus;
-      if (targetCategory && targetCategory !== 'All') query['personal.category'] = targetCategory;
-
-      const recipients = await Application.find(query);
-      const recipientIds = recipients.map(a => a.appId);
-      const recipientEmails = recipients.map(a => a.personal?.email).filter(Boolean);
-
-      const attachments = (req.files || []).map(f => ({ originalName: f.originalname, filename: f.filename, size: f.size, mimetype: f.mimetype }));
-      
-      const notif = new Notification({
-        id, title, body: msgBody, type: type || 'general', priority: priority || 'normal',
-        targetStatus: targetStatus || 'All', targetCategory: targetCategory || 'All',
-        recipientCount: recipientIds.length, recipientIds, recipientEmails, attachments,
-        sentAt: now(), createdBy: req.user.username, createdAt: now()
-      });
-      await notif.save();
-      ok(res, { notifId: notif.id, recipientCount: recipientIds.length });
-    } catch(e) { fail(res, e.message, 500); }
-});
-
-app.get('/api/admin/notifications', adminMiddleware, async (req, res) => {
-    try {
-      const page  = Math.max(1, parseInt(req.query.page) || 1);
-      const limit = 20;
-      const type  = req.query.type || 'All';
-      
-      let query = {};
-      if(type !== 'All') query.type = type;
-
-      const total = await Notification.countDocuments(query);
-      const notifs = await Notification.find(query).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
-      ok(res, { notifications: notifs, total, page });
-    } catch(e) { fail(res, e.message, 500); }
-});
-
-app.delete('/api/admin/notifications/:id', adminMiddleware, async (req, res) => {
-    try {
-      const notif = await Notification.findOne({ id: req.params.id });
-      if (!notif) return fail(res, 'Notification not found', 404);
-      await Notification.deleteOne({ id: req.params.id });
-      ok(res, { message: 'Notification deleted' });
-    } catch(e) { fail(res, e.message, 500); }
-});
-
-app.get('/api/admin/notifications/stats/summary', adminMiddleware, async (req, res) => {
-    try {
-      const all = await Notification.find();
-      const types = ['general','gd-result','interview-result','roll-number','id-card','hall-ticket','admit-card','merit-list','fee-notice','schedule','custom'];
-      ok(res, {
-        total: all.length,
-        totalReach: all.reduce((s, n) => s + n.recipientCount, 0),
-        byType: types.map(t => ({ type: t, count: all.filter(n => n.type === t).length }))
-      });
-    } catch(e) { fail(res, e.message, 500); }
-});
-
+// 404 for unmatched API
 app.use('/api/*', (req, res) => fail(res, 'Endpoint not found', 404));
-app.get('*', (req, res) => { res.sendFile(path.join(__dirname, 'frontend', 'public', 'index.html')); });
+
+// UPDATED: SPA fallback to send index.html from root directory[cite: 1, 12]
+app.get('*', (req, res) => { 
+  res.sendFile(path.join(__dirname, 'index.html')); 
+});
 
 const server = app.listen(PORT, () => {
   console.log('\n╔══════════════════════════════════════════════╗');
   console.log('║   DYD Admission Portal — PRODUCTION          ║');
   console.log('╠══════════════════════════════════════════════╣');
-  console.log(`║   Student Form  → http://localhost:${PORT}       ║`);
-  console.log(`║   Admin Panel   → http://localhost:${PORT}/admin  ║`);
+  console.log(`║   Portal URL → http://localhost:${PORT}          ║`);
   console.log('╚══════════════════════════════════════════════╝\n');
 });
 
