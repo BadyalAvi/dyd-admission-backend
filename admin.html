@@ -530,7 +530,7 @@ tbody td:first-child { font-family: 'Inter', sans-serif; font-weight: 600; color
 
 <script>
 // ════════ GLOBALS & CONFIG ════════
-const API_BASE = window.location.origin + '/api'; // AUTO-DETECT URL
+const API_BASE = window.location.origin + '/api'; // Use dynamic origin for Render
 let tok = localStorage.getItem('ncuAdminTok'), cur_appId = null, page = 1, total = 0;
 let attachedFiles = [], sentPage = 1;
 
@@ -611,7 +611,8 @@ async function api(url, method='GET', body=null, isFormData=false) {
   if (tok) opts.headers['Authorization'] = 'Bearer ' + tok;
   if (body && !isFormData) { opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body); }
   else if (body && isFormData) { opts.body = body; }
-  const r = await fetch(url.startsWith('http') || url.startsWith('/api') ? url : `${API_BASE}${url}`, opts);
+  const fullUrl = url.startsWith('http') || url.startsWith('/api') ? (url.startsWith('/api') ? API_BASE.replace('/api', '') + url : url) : `${API_BASE}${url}`;
+  const r = await fetch(fullUrl, opts);
   if(r.status === 401) { logout(); throw new Error('Session expired'); }
   return r.json();
 }
@@ -690,24 +691,34 @@ function renderDetail(a){
     <div class="msec"><div class="msec-title">Personal Details</div>
       <div class="mdata">
         <div><strong>Full Name:</strong> <span style="color:var(--ink); font-weight:500;">${p.fullName||'—'}</span></div>
+        <div><strong>Father's Name:</strong> ${p.fatherName||'—'}</div>
+        <div><strong>Mother's Name:</strong> ${p.motherName||'—'}</div>
+        <div><strong>DOB:</strong> ${p.dob||'—'} &nbsp;|&nbsp; <strong>Gender:</strong> ${p.gender||'—'}</div>
+        <div><strong>Category:</strong> ${p.category||'—'} &nbsp;|&nbsp; <strong>Nationality:</strong> ${p.nationality||'—'}</div>
         <div><strong>Mobile:</strong> ${p.mobile||'—'} &nbsp;|&nbsp; <strong>Email:</strong> ${p.email||'—'}</div>
         <div><strong>Aadhaar:</strong> ${p.aadhaar||'—'}</div>
       </div>
     </div>
     <div class="msec"><div class="msec-title">Academic History</div>
       <div class="mdata">
+        <div><strong>10th Board:</strong> ${ac.board10||'—'} — ${ac.pct10||'—'} (${ac.year10||'—'})</div>
         <div><strong>12th Board:</strong> ${ac.board12||'—'} — ${ac.pct12||'—'} (${ac.year12||'—'})</div>
         <div><strong>Stream:</strong> <span style="font-weight:500; color:var(--ink)">${ac.stream||'—'}</span></div>
+        ${ac.examName?`<div><strong>Entrance Exam:</strong> ${ac.examName} | Roll: ${ac.examRoll||'—'} | Score: ${ac.examScore||'—'}</div>`:''}
       </div>
+    </div>
+    <div class="msec"><div class="msec-title">Uploaded Documents</div>
+      <div class="mdata">${Object.keys(a.documents||{}).length?Object.entries(a.documents).map(([k,v])=>`<div><strong>${k.toUpperCase()}:</strong> <a href="#" style="color:var(--sky); text-decoration:none; font-weight:500;">${v.originalName}</a></div>`).join(''):'<span style="color:var(--ink-faint)">No documents uploaded.</span>'}</div>
     </div>
     <div class="msec" style="background:var(--paper); border-color:var(--border); margin-bottom:0;"><div class="msec-title">Admin Controls & Review</div>
       <div class="sp2">
         <div class="sp2-pill${a.status==='Pending'?' pend':''}" onclick="setS('Pending',this)">⏳ Mark Pending</div>
         <div class="sp2-pill${a.status==='Approved'?' appr':''}" onclick="setS('Approved',this)">✓ Approve</div>
         <div class="sp2-pill${a.status==='Rejected'?' reje':''}" onclick="setS('Rejected',this)">✗ Reject</div>
+        <div class="sp2-pill${a.status==='On Hold'?' hold':''}" onclick="setS('On Hold',this)">⚠ Put On Hold</div>
       </div>
-      <div class="mfield"><label>Assign Admission Number</label><input type="text" id="admNoInput" value="${a.admissionNo||''}"></div>
-      <div class="mfield"><label>Internal Admin Remarks</label><textarea id="adminRemarks">${a.adminRemarks||''}</textarea></div>
+      <div class="mfield"><label>Assign Admission Number</label><input type="text" id="admNoInput" placeholder="e.g. DYD/2026/BTech/0042" value="${a.admissionNo||''}"></div>
+      <div class="mfield"><label>Internal Admin Remarks</label><textarea id="adminRemarks" placeholder="Add private notes...">${a.adminRemarks||''}</textarea></div>
     </div>`;
 }
 
@@ -726,25 +737,27 @@ async function saveAdmin(){
   try{
     const body={};
     if(selectedStatus) body.status=selectedStatus;
-    body.admissionNo=document.getElementById('admNoInput')?.value;
-    body.adminRemarks=document.getElementById('adminRemarks')?.value;
+    const admNo=document.getElementById('admNoInput')?.value; if(admNo!==undefined)body.admissionNo=admNo;
+    const rem=document.getElementById('adminRemarks')?.value; if(rem!==undefined)body.adminRemarks=rem;
     const d=await api('/admin/applications/'+cur_appId,'PATCH',body);
     if(!d.success)throw new Error(d.error);
-    showT('s','Application updated successfully'); loadApps();
+    showT('s','Application updated successfully');
+    loadApps();
   }catch(e){showT('e',e.message);}
   btn.innerHTML='Save Admin Changes';btn.disabled=false;
 }
 
 async function deleteApp(){
-  if(!cur_appId||!confirm('Permanently delete this application?')) return;
+  if(!cur_appId||!confirm('WARNING: Are you sure you want to permanently delete this application?')) return;
   try{
     const d=await api('/admin/applications/'+cur_appId,'DELETE');
     if(!d.success)throw new Error(d.error);
-    showT('s','Application deleted'); closeModal(); loadApps();
+    showT('s','Application deleted');
+    closeModal();loadApps();
   }catch(e){showT('e',e.message);}
 }
 
-function closeModal(e){if(!e||e.target===document.getElementById('modalBg')){document.getElementById('modalBg').classList.remove('show');cur_appId=null;selectedStatus=null;}}
+function closeModal(e){if(!e||e.target===document.getElementById('modalBg') || e.target.className === 'mclose'){document.getElementById('modalBg').classList.remove('show');cur_appId=null;selectedStatus=null;}}
 
 // ════════ 2. COMMS LOGIC ════════
 async function updateAudienceCount() {
@@ -788,8 +801,8 @@ function updatePreview() {
   const meta = TYPE_META[type] || TYPE_META.general;
   const pm   = PRI_META[pri];
   document.getElementById('pvIcon').textContent = meta.icon;
-  document.getElementById('pvTitle').textContent = document.getElementById('notifTitle').value || 'Your title';
-  document.getElementById('pvBody').textContent  = document.getElementById('notifBody').value || 'Message body...';
+  document.getElementById('pvTitle').textContent = document.getElementById('notifTitle').value || 'Your notification title';
+  document.getElementById('pvBody').textContent  = document.getElementById('notifBody').value || 'Your message will appear here…';
   const badge = document.getElementById('pvBadge');
   badge.textContent = pm.label; badge.style.background = pm.bg; badge.style.color = pm.color;
   document.getElementById('pvAttachList').innerHTML = attachedFiles.map(f=>`<div class="pc-attach">📎 ${f.name}</div>`).join('');
@@ -809,7 +822,7 @@ function renderAttachList() {
 async function sendNotification() {
   const title = document.getElementById('notifTitle').value.trim();
   const body  = document.getElementById('notifBody').value.trim();
-  if (!title || !body) { showT('e','Complete title and body'); return; }
+  if (!title || !body) { showT('e','Please enter a notification title and body'); return; }
   const btn = document.getElementById('sendBtn');
   btn.innerHTML='<span class="spin"></span> Broadcasting…'; btn.disabled=true;
   try {
@@ -822,7 +835,7 @@ async function sendNotification() {
     attachedFiles.forEach(f => fd.append('attachments', f));
     const r = await api('/admin/notifications','POST', fd, true);
     if (!r.success) throw new Error(r.error);
-    showT('s', `Sent to ${r.recipientCount} student(s)`); clearForm(); loadSentCount();
+    showT('s', `✓ Sent to ${r.recipientCount} student(s)`); clearForm(); loadSentCount();
   } catch(e) { showT('e', e.message); }
   btn.innerHTML='📤 Broadcast Message'; btn.disabled=false;
 }
@@ -836,7 +849,7 @@ function quickCompose(type, icon, label) {
   showAdminView('compose');
   document.querySelector(`input[name="mtype"][value="${type}"]`)?.click();
   document.getElementById('notifTitle').value = label + ' — DYD Admissions 2026';
-  document.getElementById('notifBody').value = `Dear Student,\n\nPlease check your portal for ${label}.\n\nRegards,\nDYD Jammu University`;
+  document.getElementById('notifBody').value = `Dear Student,\n\nWe are pleased to share the ${label} for the ongoing admission process.\n\nPlease find the details attached.\n\nRegards,\nDYD Jammu University`;
   updatePreview(); window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -845,13 +858,14 @@ async function loadSent(page=1) {
   const type = document.getElementById('sentTypeFilter').value;
   try {
     const r = await api(`/admin/notifications?page=${page}&type=${type}`);
-    if (r.success) renderSentList(r.notifications || [], r.total || 0);
+    if (!r.success) throw new Error(r.error);
+    renderSentList(r.notifications || [], r.total || 0);
   } catch(e) { showT('e', e.message); }
 }
 
 function renderSentList(notifs, totalCount) {
   const el = document.getElementById('sentList');
-  if (!notifs.length) { el.innerHTML = `<div style="text-align:center; padding: 60px; color: var(--ink-muted);">No messages found.</div>`; return; }
+  if (!notifs.length) { el.innerHTML = `<div style="text-align:center; padding: 60px; color: var(--ink-muted);">No broadcast messages found.</div>`; return; }
   el.innerHTML = notifs.map(n => {
     const meta = TYPE_META[n.type] || TYPE_META.general;
     return `
@@ -859,6 +873,7 @@ function renderSentList(notifs, totalCount) {
       <div class="nl-card-head" onclick="toggleDetail('nd-${n.id}')">
         <div class="nl-type-badge" style="background:${meta.color}; color:${meta.textColor}">${meta.icon}</div>
         <div class="nl-info"><div class="nl-title">${escHtml(n.title)}</div><div class="nl-meta">Sent ${fmtDate(n.sentAt)} · ${n.recipientCount} recipients</div></div>
+        <div class="nl-actions"><button class="btn bgh" style="padding:6px 10px;" onclick="event.stopPropagation();deleteNotif('${n.id}')">🗑</button></div>
       </div>
       <div class="nl-detail" id="nd-${n.id}"><div class="nl-detail-inner"><div class="nl-body-txt">${escHtml(n.body)}</div></div></div>
     </div>`;
@@ -867,21 +882,30 @@ function renderSentList(notifs, totalCount) {
 
 function toggleDetail(id) { document.getElementById(id).classList.toggle('open'); }
 
-async function loadCommStats() {
+async function deleteNotif(id) {
+  if (!confirm('Delete this broadcast permanently?')) return;
   try {
-    const r = await api('/admin/notifications/stats/summary');
-    if (r.success) {
-      document.getElementById('stTotalC').textContent = r.total || 0;
-      document.getElementById('stReachC').textContent = r.totalReach || 0;
-      document.getElementById('stAvgC').textContent   = r.total ? Math.round(r.totalReach / r.total) : 0;
-    }
+    const r = await api(`/admin/notifications/${id}`, 'DELETE');
+    if (!r.success) throw new Error(r.error);
+    showT('s', 'Broadcast deleted'); loadSent(sentPage); loadSentCount();
   } catch(e) { showT('e', e.message); }
 }
 
-let _st; function debSearch(v){ clearTimeout(_st); _st=setTimeout(loadApps,400); }
+async function loadCommStats() {
+  try {
+    const r = await api('/admin/notifications/stats/summary');
+    if (!r.success) throw new Error(r.error);
+    document.getElementById('stTotalC').textContent = r.total || 0;
+    document.getElementById('stReachC').textContent = r.totalReach || 0;
+    document.getElementById('stAvgC').textContent   = r.total ? Math.round(r.totalReach / r.total) : 0;
+  } catch(e) { showT('e', e.message); }
+}
+
+// ════════ UTILS ════════
+let _st; function debSearch(v){clearTimeout(_st);_st=setTimeout(()=>{page=1;loadApps();},400);}
 function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function showT(type,msg){const el=document.getElementById('toast');document.getElementById('tdot').className='tdot '+type;document.getElementById('ttxt').textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3200);}
+function showT(type,msg){const el=document.getElementById('toast');document.getElementById('tdot').className='tdot '+type;document.getElementById('ttxt').textContent=msg;el.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>el.classList.remove('show'),3200);}
 </script>
 </body>
 </html>
