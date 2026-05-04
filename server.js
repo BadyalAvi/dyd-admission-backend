@@ -93,16 +93,25 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// UPDATED: Serve static files from root directory to match GitHub structure[cite: 1, 12]
+// Serve static files from root folder (admin.html, etc.)
 app.use(express.static(__dirname));
-
 app.use('/uploads', express.static(UPLOADS_DIR));
 app.use('/api/notif-files', express.static(NOTIF_DIR));
 
 const authLimiter   = rateLimit({ windowMs: 15*60*1000, max: 20, message: { error: 'Too many attempts. Try in 15 minutes.' } });
 const uploadLimiter = rateLimit({ windowMs: 60*60*1000, max: 60, message: { error: 'Upload limit reached.' } });
 const apiLimiter    = rateLimit({ windowMs: 15*60*1000, max: 300, message: { error: 'Too many requests.' } });
-app.use('/api/', apiLimiter);
+
+const now = () => new Date().toISOString();
+const ok = (res, d) => res.json({ success: true, ...d });
+const fail = (res, msg, code = 400) => res.status(code).json({ success: false, error: msg });
+const valid = (req, res) => { const e = validationResult(req); if (!e.isEmpty()) { fail(res, e.array().map(x=>x.msg).join('; '), 422); return false; } return true; };
+const safeApp = (a) => { const s = JSON.parse(JSON.stringify(a)); if (s.account) delete s.account.passwordHash; return s; };
+
+async function generateAppId() {
+    const counter = await Counter.findOneAndUpdate({ id: 'appSeq' }, { $inc: { seq: 1 } }, { new: true, upsert: true });
+    return 'DYD-2026-' + String(counter.seq).padStart(5, '0');
+}
 
 // ── MULTER SETUP ──
 const storage = multer.diskStorage({
@@ -134,18 +143,8 @@ const notifUpload = multer({
     }
 });
 
-const now = () => new Date().toISOString();
-const ok = (res, d) => res.json({ success: true, ...d });
-const fail = (res, msg, code = 400) => res.status(code).json({ success: false, error: msg });
-const valid = (req, res) => { const e = validationResult(req); if (!e.isEmpty()) { fail(res, e.array().map(x=>x.msg).join('; '), 422); return false; } return true; };
-const safeApp = (a) => { const s = JSON.parse(JSON.stringify(a)); if (s.account) delete s.account.passwordHash; return s; };
+// ════════ API ROUTES (Must stay above the fallback) ════════
 
-async function generateAppId() {
-    const counter = await Counter.findOneAndUpdate({ id: 'appSeq' }, { $inc: { seq: 1 } }, { new: true, upsert: true });
-    return 'DYD-2026-' + String(counter.seq).padStart(5, '0');
-}
-
-// ════════ AUTH ROUTES ════════════════════════════════════
 app.post('/api/auth/register', authLimiter,
   [body('email').isEmail().normalizeEmail(), body('password').isLength({min:8}), body('appId').notEmpty()],
   async (req, res) => {
@@ -199,20 +198,49 @@ app.post('/api/auth/admin-login', authLimiter,
   }
 );
 
-// ════════ RAZORPAY ROUTES ════════════════════════════════
+app.get('/api/admin/applications', adminMiddleware, async (req, res) => {
+  try {
+    const page  = Math.max(1, parseInt(req.query.page)||1);
+    const limit = Math.min(50, parseInt(req.query.limit)||15);
+    const status = req.query.status || 'All';
+    const search = (req.query.search||'').toLowerCase().trim();
+
+    let query = {};
+    if (status !== 'All') query.status = status;
+    if (search) {
+        query.$or = [{ appId: { $regex: search, $options: 'i' } }, { 'personal.fullName': { $regex: search, $options: 'i' } }];
+    }
+
+    const total = await Application.countDocuments(query);
+    const apps = await Application.find(query).sort({ updatedAt: -1 }).skip((page - 1) * limit).limit(limit);
+    
+    const all = await Application.find();
+    const stats = { 
+      total:all.length, 
+      pending:all.filter(a=>a.status==='Pending').length, 
+      approved:all.filter(a=>a.status==='Approved').length, 
+      rejected:all.filter(a=>a.status==='Rejected').length 
+    };
+
+    const formattedApps = apps.map(a => ({ 
+      appId:a.appId, 
+      status:a.status, 
+      fullName:a.personal?.fullName||'—', 
+      email:a.personal?.email||'—', 
+      category:a.personal?.category||'—', 
+      stream:a.academic?.stream||'—', 
+      updatedAt:a.updatedAt 
+    }));
+    
+    ok(res, { applications:formattedApps, total, page, stats });
+  } catch(e) { fail(res, e.message, 500); }
+});
+
+// Razorpay routes
 app.post('/api/applications/:appId/create-payment', authMiddleware, async (req, res) => {
     try {
         const { appId } = req.params;
-        if (req.user.role === 'student' && req.user.appId !== appId) return fail(res, 'Access denied', 403);
-        const appRecord = await Application.findOne({ appId });
-        if (!appRecord) return fail(res, 'Application not found', 404);
-
-        const options = {
-            amount: 1500 * 100, // ₹1,500 in paise
-            currency: "INR",
-            receipt: `rcpt_${appId.replace(/[^a-zA-Z0-9]/g, '')}`
-        };
-
+        const options = { amount: 1500 * 100, currency: "INR", receipt: `rcpt_${appId}` };
         const order = await razorpay.orders.create(options);
         ok(res, { orderId: order.id, amount: order.amount });
     } catch(e) { fail(res, e.message, 500); }
@@ -221,126 +249,36 @@ app.post('/api/applications/:appId/create-payment', authMiddleware, async (req, 
 app.post('/api/applications/:appId/verify-payment', authMiddleware, async (req, res) => {
     try {
         const { appId } = req.params;
-        if (req.user.role === 'student' && req.user.appId !== appId) return fail(res, 'Access denied', 403);
-
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
         const body = razorpay_order_id + "|" + razorpay_payment_id;
-        
-        const expectedSignature = crypto
-            .createHmac("sha256", 'CDGum0SfQGsOKon1USI26obR')
-            .update(body.toString())
-            .digest("hex");
+        const expectedSignature = crypto.createHmac("sha256", 'CDGum0SfQGsOKon1USI26obR').update(body.toString()).digest("hex");
 
         if (expectedSignature === razorpay_signature) {
-            await Application.findOneAndUpdate({ appId }, {
-                'payment.mode': 'Razorpay',
-                'payment.txnId': razorpay_payment_id,
-                'payment.orderId': razorpay_order_id,
-                'payment.payDate': now(),
-                'payment.status': 'Success',
-                step: 5 
-            });
-            ok(res, { message: 'Payment verified successfully' });
-        } else {
-            fail(res, 'Invalid signature', 400);
-        }
+            await Application.findOneAndUpdate({ appId }, { 'payment.status': 'Success', 'payment.txnId': razorpay_payment_id });
+            ok(res, { message: 'Verified' });
+        } else { fail(res, 'Invalid Signature', 400); }
     } catch(e) { fail(res, e.message, 500); }
 });
 
-// ════════ APPLICATION ROUTES ═════════════════════════════
-app.post('/api/applications/:appId/upload', authMiddleware, uploadLimiter, upload.single('file'), async (req, res) => {
+// Notifications
+app.get('/api/admin/notifications/stats/summary', adminMiddleware, async (req, res) => {
     try {
-      if (!req.file) return fail(res, 'No file uploaded', 400);
-      const { appId } = req.params;
-      if (req.user.role === 'student' && req.user.appId !== appId) return fail(res, 'Access denied', 403);
-      const appRecord = await Application.findOne({ appId });
-      if (!appRecord) return fail(res, 'Application not found', 404);
-      const fileUrl = `/uploads/${appId}/${req.file.filename}`;
-      ok(res, { message: 'File uploaded successfully', url: fileUrl });
+      const all = await Notification.find();
+      ok(res, { total: all.length, totalReach: all.reduce((s, n) => s + (n.recipientCount || 0), 0) });
     } catch(e) { fail(res, e.message, 500); }
 });
 
-app.post('/api/applications/start', async (req, res) => {
-  try {
-    const appId = await generateAppId();
-    const newApp = new Application({ appId, status:'Draft', step:0, personal:{}, address:{}, academic:{}, documents:{}, payment:{}, declaration:{}, account:{}, adminRemarks:'', admissionNo:'', createdAt:now(), updatedAt:now() });
-    await newApp.save();
-    ok(res, { appId });
-  } catch(e) { fail(res, e.message, 500); }
-});
-
-app.put('/api/applications/:appId', [param('appId').matches(/^(NCU|DYD)-\d{4}-\d{5}$/)], async (req, res) => {
+app.get('/api/admin/notifications', adminMiddleware, async (req, res) => {
     try {
-      if (!valid(req, res)) return;
-      const { appId } = req.params;
-      const appRecord = await Application.findOne({ appId });
-      if (!appRecord) return fail(res, 'Application not found', 404);
-      if (appRecord.status === 'Pending' || appRecord.status === 'Approved') return fail(res, 'Submitted applications cannot be edited', 403);
-      
-      const updates = { updatedAt: now() };
-      ['personal','address','academic','payment','declaration','account','step'].forEach(k => { if (req.body[k] !== undefined) updates[k] = req.body[k]; });
-      
-      await Application.findOneAndUpdate({ appId }, updates);
-      ok(res, { appId, updatedAt: updates.updatedAt });
+      const notifs = await Notification.find().sort({ createdAt: -1 });
+      ok(res, { notifications: notifs, total: notifs.length });
     } catch(e) { fail(res, e.message, 500); }
 });
 
-app.get('/api/applications/:appId', authMiddleware, async (req, res) => {
-    try {
-      const appRecord = await Application.findOne({ appId: req.params.appId });
-      if (!appRecord) return fail(res, 'Application not found', 404);
-      if (req.user.role === 'student' && req.user.appId !== req.params.appId) return fail(res, 'Access denied', 403);
-      ok(res, { application: safeApp(appRecord) });
-    } catch(e) { fail(res, e.message, 500); }
+// ════════ FALLBACK ROUTE (Must be at the very bottom) ════════
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.post('/api/applications/:appId/submit', authMiddleware, async (req, res) => {
-  try {
-    const { appId } = req.params;
-    if (req.user.role === 'student' && req.user.appId !== appId) return fail(res, 'Access denied', 403);
-    const appRecord = await Application.findOne({ appId });
-    if (!appRecord) return fail(res, 'Application not found', 404);
-    if (appRecord.status !== 'Draft') return fail(res, 'Application already submitted', 409);
-    
-    appRecord.status = 'Pending';
-    appRecord.submittedAt = now();
-    appRecord.updatedAt = now();
-    await appRecord.save();
-    
-    ok(res, { appId, status:'Pending', message:'Application submitted successfully' });
-  } catch(e) { fail(res, e.message, 500); }
-});
-
-app.get('/api/status/:appId', async (req, res) => {
-  try {
-    const appRecord = await Application.findOne({ appId: req.params.appId });
-    if (!appRecord) return fail(res, 'Application not found', 404);
-    ok(res, { appId:appRecord.appId, status:appRecord.status, applicantName:appRecord.personal?.fullName||null, admissionNo:appRecord.admissionNo||null, submittedAt:appRecord.submittedAt||null, updatedAt:appRecord.updatedAt });
-  } catch(e) { fail(res, e.message, 500); }
-});
-
-app.get('/api/student/notifications/:appId', authMiddleware, async (req, res) => {
-    try {
-      if (req.user.role === 'student' && req.user.appId !== req.params.appId) return fail(res, 'Access denied', 403);
-      const notifs = await Notification.find({ recipientIds: req.params.appId }).sort({ createdAt: -1 });
-      ok(res, { notifications: notifs });
-    } catch(e) { fail(res, e.message, 500); }
-});
-
-// 404 for unmatched API
-app.use('/api/*', (req, res) => fail(res, 'Endpoint not found', 404));
-
-// UPDATED: SPA fallback to send index.html from root directory[cite: 1, 12]
-app.get('*', (req, res) => { 
-  res.sendFile(path.join(__dirname, 'index.html')); 
-});
-
-const server = app.listen(PORT, () => {
-  console.log('\n╔══════════════════════════════════════════════╗');
-  console.log('║   DYD Admission Portal — PRODUCTION          ║');
-  console.log('╠══════════════════════════════════════════════╣');
-  console.log(`║   Portal URL → http://localhost:${PORT}          ║`);
-  console.log('╚══════════════════════════════════════════════╝\n');
-});
-
-module.exports = { app, server };
+app.listen(PORT, () => console.log(`🚀 Server live on port ${PORT}`));
