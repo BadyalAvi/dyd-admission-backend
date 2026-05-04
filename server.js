@@ -17,7 +17,7 @@ const Razorpay  = require('razorpay');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_change_in_production';
+const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_2026';
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
@@ -93,12 +93,41 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from root folder (admin.html, index.html)
+// Serve static files from root directory to match GitHub structure[cite: 1]
 app.use(express.static(__dirname));
+
 app.use('/uploads', express.static(UPLOADS_DIR));
 app.use('/api/notif-files', express.static(NOTIF_DIR));
 
 const authLimiter   = rateLimit({ windowMs: 15*60*1000, max: 20, message: { error: 'Too many attempts. Try in 15 minutes.' } });
+const uploadLimiter = rateLimit({ windowMs: 60*60*1000, max: 60, message: { error: 'Upload limit reached.' } });
+const apiLimiter    = rateLimit({ windowMs: 15*60*1000, max: 300, message: { error: 'Too many requests.' } });
+
+// ── MULTER SETUP ──
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(UPLOADS_DIR, req.params.appId || 'tmp');
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => { cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname).toLowerCase()}`); }
+});
+const upload = multer({
+  storage, limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const extOk = /\.(jpg|jpeg|png|pdf)$/i.test(path.extname(file.originalname));
+    const mimeOk = /image\/(jpeg|png)|application\/pdf/.test(file.mimetype);
+    cb(extOk && mimeOk ? null : new Error('Only JPG, PNG, PDF allowed'), extOk && mimeOk);
+  }
+});
+
+const notifStorage = multer.diskStorage({
+    destination: (req, file, cb) => { cb(null, NOTIF_DIR); },
+    filename: (req, file, cb) => { cb(null, `notif-${Date.now()}-${file.originalname}`); }
+});
+const notifUpload = multer({
+    storage: notifStorage, limits: { fileSize: 10 * 1024 * 1024 }
+});
 
 const now = () => new Date().toISOString();
 const ok = (res, d) => res.json({ success: true, ...d });
@@ -111,7 +140,7 @@ async function generateAppId() {
     return 'DYD-2026-' + String(counter.seq).padStart(5, '0');
 }
 
-// ════════ API ROUTES ════════
+// ════════ API ROUTES (Placed BEFORE fallback to ensure they work live)[cite: 1, 2] ════════
 
 app.post('/api/auth/register', authLimiter, async (req, res) => {
     try {
@@ -119,11 +148,11 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
       const appRecord = await Application.findOne({ appId });
       if (!appRecord) return fail(res, 'Application not found', 404);
       const existingStudent = await Student.findOne({ email });
-      if (existingStudent) return fail(res, 'Email registered', 409);
+      if (existingStudent) return fail(res, 'Email already registered', 409);
       const passwordHash = await bcrypt.hash(password, 12);
       const student = new Student({ id: uuidv4(), email, passwordHash, appId, createdAt: now() });
       await student.save();
-      appRecord.account = { email }; await appRecord.save();
+      appRecord.account = { email }; appRecord.updatedAt = now(); await appRecord.save();
       const token = jwt.sign({ id: student.id, email, role: 'student', appId }, JWT_SECRET, { expiresIn: '7d' });
       ok(res, { token, appId });
     } catch(e) { fail(res, e.message, 500); }
@@ -133,7 +162,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
     try {
       const { email, password } = req.body;
       const s = await Student.findOne({ email });
-      if (!s || !(await bcrypt.compare(password, s.passwordHash))) return fail(res, 'Invalid credentials', 401);
+      if (!s || !(await bcrypt.compare(password, s.passwordHash))) return fail(res, 'Invalid email or password', 401);
       const token = jwt.sign({ id: s.id, email, role: 'student', appId: s.appId }, JWT_SECRET, { expiresIn: '7d' });
       ok(res, { token, appId: s.appId });
     } catch(e) { fail(res, e.message, 500); }
@@ -154,22 +183,18 @@ app.post('/api/auth/admin-login', authLimiter, async (req, res) => {
     } catch(e) { fail(res, e.message, 500); }
 });
 
-// Admin Tracker: Get List
 app.get('/api/admin/applications', adminMiddleware, async (req, res) => {
   try {
-    const status = req.query.status || 'All', search = (req.query.search||'').toLowerCase().trim();
-    let query = {};
-    if (status !== 'All') query.status = status;
+    const status = req.query.status || 'All', search = (req.query.search||'').toLowerCase();
+    let query = {}; if (status !== 'All') query.status = status;
     if (search) query.$or = [{ appId: { $regex: search, $options: 'i' } }, { 'personal.fullName': { $regex: search, $options: 'i' } }];
     const apps = await Application.find(query).sort({ updatedAt: -1 });
     const all = await Application.find();
     const stats = { total:all.length, pending:all.filter(a=>a.status==='Pending').length, approved:all.filter(a=>a.status==='Approved').length, rejected:all.filter(a=>a.status==='Rejected').length };
-    const formatted = apps.map(a => ({ appId:a.appId, status:a.status, fullName:a.personal?.fullName||'—', email:a.personal?.email||'—', category:a.personal?.category||'—', stream:a.academic?.stream||'—', updatedAt:a.updatedAt }));
-    ok(res, { applications:formatted, stats });
+    ok(res, { applications: apps.map(a => ({ appId:a.appId, status:a.status, fullName:a.personal?.fullName||'—', email:a.personal?.email||'—', category:a.personal?.category||'—', stream:a.academic?.stream||'—', updatedAt:a.updatedAt })), stats });
   } catch(e) { fail(res, e.message, 500); }
 });
 
-// Admin Tracker: GET SINGLE APPLICATION (The fix for your error)
 app.get('/api/admin/applications/:appId', adminMiddleware, async (req, res) => {
     try {
       const appRecord = await Application.findOne({ appId: req.params.appId });
@@ -178,7 +203,6 @@ app.get('/api/admin/applications/:appId', adminMiddleware, async (req, res) => {
     } catch(e) { fail(res, e.message, 500); }
 });
 
-// Admin Tracker: Update Status/Remarks
 app.patch('/api/admin/applications/:appId', adminMiddleware, async (req, res) => {
     try {
       const updates = { updatedAt: now() };
@@ -189,7 +213,48 @@ app.patch('/api/admin/applications/:appId', adminMiddleware, async (req, res) =>
     } catch(e) { fail(res, e.message, 500); }
 });
 
-// Student Status
+app.post('/api/admin/notifications', adminMiddleware, notifUpload.array('attachments', 5), async (req, res) => {
+    try {
+      const { title, body, type, targetStatus, targetCategory, priority } = req.body;
+      let query = {};
+      if (targetStatus && targetStatus !== 'All') query.status = targetStatus;
+      if (targetCategory && targetCategory !== 'All') query['personal.category'] = targetCategory;
+      const recipients = await Application.find(query);
+      const notif = new Notification({
+        id: 'NOTIF-' + Date.now(), title, body, type: type || 'general', priority: priority || 'normal',
+        targetStatus: targetStatus || 'All', targetCategory: targetCategory || 'All',
+        recipientCount: recipients.length, recipientIds: recipients.map(a => a.appId),
+        attachments: (req.files || []).map(f => ({ originalName: f.originalname, filename: f.filename })),
+        sentAt: now(), createdBy: req.user.username, createdAt: now()
+      });
+      await notif.save();
+      ok(res, { recipientCount: recipients.length });
+    } catch(e) { fail(res, e.message, 500); }
+});
+
+app.get('/api/admin/notifications', adminMiddleware, async (req, res) => {
+    try {
+      const notifs = await Notification.find().sort({ createdAt: -1 });
+      ok(res, { notifications: notifs, total: notifs.length });
+    } catch(e) { fail(res, e.message, 500); }
+});
+
+app.get('/api/admin/notifications/stats/summary', adminMiddleware, async (req, res) => {
+    try {
+      const all = await Notification.find();
+      ok(res, { total: all.length, totalReach: all.reduce((s, n) => s + (n.recipientCount || 0), 0) });
+    } catch(e) { fail(res, e.message, 500); }
+});
+
+app.post('/api/applications/start', async (req, res) => {
+  try {
+    const appId = await generateAppId();
+    const newApp = new Application({ appId, status:'Draft', step:0, personal:{}, address:{}, academic:{}, documents:{}, payment:{}, admissionNo:'', createdAt:now(), updatedAt:now() });
+    await newApp.save();
+    ok(res, { appId });
+  } catch(e) { fail(res, e.message, 500); }
+});
+
 app.get('/api/status/:appId', async (req, res) => {
   try {
     const appRecord = await Application.findOne({ appId: req.params.appId });
@@ -198,10 +263,21 @@ app.get('/api/status/:appId', async (req, res) => {
   } catch(e) { fail(res, e.message, 500); }
 });
 
-// ════════ FALLBACK ROUTE ════════
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+app.get('/api/student/notifications/:appId', authMiddleware, async (req, res) => {
+    try {
+      const notifs = await Notification.find({ recipientIds: req.params.appId }).sort({ createdAt: -1 });
+      ok(res, { notifications: notifs });
+    } catch(e) { fail(res, e.message, 500); }
 });
 
-app.listen(PORT, () => console.log(`🚀 Live on port ${PORT}`));
+// ════════ FALLBACK ROUTE (Must be at the bottom)[cite: 1, 2] ════════
+
+app.get('*', (req, res) => { 
+  res.sendFile(path.join(__dirname, 'index.html')); 
+});
+
+const server = app.listen(PORT, () => {
+  console.log(`🚀 DYD Portal Live on port ${PORT}`);
+});
+
+module.exports = { app, server };
