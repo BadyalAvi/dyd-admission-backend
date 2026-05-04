@@ -531,7 +531,7 @@ tbody td:first-child { font-family: 'Inter', sans-serif; font-weight: 600; color
 <script>
 // ════════ GLOBALS & CONFIG ════════
 const API_BASE = window.location.origin + '/api'; // AUTO-DETECT URL
-let tok = null, cur_appId = null, page = 1, total = 0;
+let tok = localStorage.getItem('ncuAdminTok'), cur_appId = null, page = 1, total = 0;
 let attachedFiles = [], sentPage = 1;
 
 const TYPE_META = {
@@ -580,8 +580,7 @@ function showLayout(u){
 
 function logout(){tok=null;localStorage.removeItem('ncuAdminTok');location.reload();}
 
-const saved=localStorage.getItem('ncuAdminTok');
-if(saved){tok=saved;showLayout('admin');}
+if(tok){showLayout('admin');}
 
 // ════════ VIEW ROUTING ════════
 const titles = {
@@ -612,7 +611,7 @@ async function api(url, method='GET', body=null, isFormData=false) {
   if (tok) opts.headers['Authorization'] = 'Bearer ' + tok;
   if (body && !isFormData) { opts.headers['Content-Type']='application/json'; opts.body=JSON.stringify(body); }
   else if (body && isFormData) { opts.body = body; }
-  const r = await fetch(url.startsWith('/api') ? url : `${API_BASE}${url}`, opts);
+  const r = await fetch(url.startsWith('http') || url.startsWith('/api') ? url : `${API_BASE}${url}`, opts);
   if(r.status === 401) { logout(); throw new Error('Session expired'); }
   return r.json();
 }
@@ -879,10 +878,10 @@ async function loadCommStats() {
   } catch(e) { showT('e', e.message); }
 }
 
-let _st; function debSearch(v){clearTimeout(_st);_st=setTimeout(()=>{page=1;loadApps();},400);}
+let _st; function debSearch(v){ clearTimeout(_st); _st=setTimeout(loadApps,400); }
 function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function showT(type,msg){const el=document.getElementById('toast');document.getElementById('tdot').className='tdot '+type;document.getElementById('ttxt').textContent=msg;el.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(()=>el.classList.remove('show'),3200);}
+function showT(type,msg){const el=document.getElementById('toast');document.getElementById('tdot').className='tdot '+type;document.getElementById('ttxt').textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3200);}
 </script>
 </body>
 </html>
